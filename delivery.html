@@ -1,0 +1,1448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PharmaFast — Rider Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --green: #0F6E56;
+  --green-dark: #085041;
+  --green-mid: #1D9E75;
+  --green-light: #E1F5EE;
+  --green-pale: #f0faf6;
+  --mint: #9FE1CB;
+  --red: #E24B4A;
+  --amber: #FAC775;
+  --amber-bg: #FAEEDA;
+  --text: #1a1a1a;
+  --text-sub: #666;
+  --border: #e4e8e4;
+  --white: #ffffff;
+  --card-bg: #ffffff;
+  --page-bg: #f2f6f3;
+  --shadow-sm: 0 2px 8px rgba(15,110,86,.08);
+  --shadow-md: 0 4px 20px rgba(15,110,86,.12);
+  --shadow-lg: 0 8px 40px rgba(15,110,86,.15);
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--page-bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* ── Login Screen ── */
+#login-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(145deg, #085041 0%, #0F6E56 40%, #1D9E75 100%);
+  position: relative;
+  overflow: hidden;
+}
+#login-screen::before {
+  content: '';
+  position: absolute;
+  width: 600px; height: 600px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.04);
+  top: -200px; right: -200px;
+}
+#login-screen::after {
+  content: '';
+  position: absolute;
+  width: 400px; height: 400px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.04);
+  bottom: -150px; left: -100px;
+}
+
+.login-card {
+  background: var(--white);
+  border-radius: 24px;
+  padding: 48px 40px;
+  width: 420px;
+  max-width: 90vw;
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 24px 80px rgba(0,0,0,.3);
+}
+.login-logo {
+  font-family: 'Syne', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--green);
+  margin-bottom: 8px;
+}
+.login-logo span { color: var(--mint); }
+.login-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--green-light);
+  color: var(--green);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 28px;
+}
+.login-card h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 26px;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+.login-card p { font-size: 14px; color: var(--text-sub); margin-bottom: 28px; }
+.field { margin-bottom: 18px; }
+.field label { display: block; font-size: 12px; font-weight: 600; color: #555; margin-bottom: 6px; text-transform: uppercase; letter-spacing: .5px; }
+.field input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  font-size: 15px;
+  font-family: 'DM Sans', sans-serif;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+  background: #fafafa;
+}
+.field input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(15,110,86,.1); background: #fff; }
+.login-btn {
+  width: 100%;
+  padding: 14px;
+  background: var(--green);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: 'Syne', sans-serif;
+  cursor: pointer;
+  transition: background .2s, transform .1s;
+  margin-top: 8px;
+}
+.login-btn:hover { background: var(--green-dark); }
+.login-btn:active { transform: scale(.98); }
+.login-demo { margin-top: 16px; font-size: 13px; color: var(--text-sub); text-align: center; }
+.login-demo strong { color: var(--green); cursor: pointer; }
+.login-error {
+  background: #fff0f0;
+  border: 1px solid #fcc;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--red);
+  margin-bottom: 16px;
+  display: none;
+}
+
+/* ── Dashboard Layout ── */
+#dashboard { display: none; min-height: 100vh; flex-direction: column; }
+
+/* ── Top Nav ── */
+.top-nav {
+  background: var(--green-dark);
+  color: #fff;
+  padding: 0 28px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 16px rgba(0,0,0,.2);
+}
+.nav-brand {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.nav-brand span { color: var(--mint); }
+.nav-badge {
+  background: rgba(255,255,255,.15);
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--mint);
+  letter-spacing: .5px;
+}
+.nav-right { display: flex; align-items: center; gap: 16px; }
+.rider-info { text-align: right; }
+.rider-name { font-size: 14px; font-weight: 700; }
+.rider-status-text { font-size: 12px; opacity: .7; }
+
+/* Online Toggle */
+.toggle-wrap { display: flex; align-items: center; gap: 8px; }
+.toggle-label { font-size: 13px; font-weight: 600; }
+.toggle {
+  width: 48px; height: 26px;
+  background: #ccc;
+  border-radius: 13px;
+  cursor: pointer;
+  position: relative;
+  transition: background .3s;
+  border: none;
+  outline: none;
+}
+.toggle.on { background: var(--mint); }
+.toggle::after {
+  content: '';
+  position: absolute;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  top: 3px; left: 3px;
+  transition: left .3s;
+  box-shadow: 0 1px 4px rgba(0,0,0,.2);
+}
+.toggle.on::after { left: 25px; }
+.logout-nav-btn {
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.2);
+  color: #fff;
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .2s;
+}
+.logout-nav-btn:hover { background: rgba(255,255,255,.2); }
+
+/* ── Stats Bar ── */
+.stats-bar {
+  background: var(--green);
+  padding: 0 28px;
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+}
+.stat-item {
+  padding: 16px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border-right: 1px solid rgba(255,255,255,.15);
+  flex-shrink: 0;
+}
+.stat-item:last-child { border-right: none; }
+.stat-val {
+  font-family: 'Syne', sans-serif;
+  font-size: 24px;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1;
+}
+.stat-label { font-size: 11px; color: rgba(255,255,255,.7); font-weight: 500; letter-spacing: .3px; }
+.stat-change { font-size: 11px; color: var(--mint); font-weight: 600; }
+
+/* ── Tabs ── */
+.tabs-bar {
+  background: #fff;
+  border-bottom: 1px solid var(--border);
+  padding: 0 28px;
+  display: flex;
+  gap: 0;
+}
+.tab-btn {
+  padding: 14px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-sub);
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all .2s;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: 'DM Sans', sans-serif;
+}
+.tab-btn.active { color: var(--green); border-bottom-color: var(--green); }
+.tab-btn:hover:not(.active) { color: var(--text); background: var(--green-pale); }
+.tab-count {
+  background: var(--red);
+  color: #fff;
+  border-radius: 10px;
+  padding: 1px 7px;
+  font-size: 11px;
+  font-weight: 700;
+  min-width: 20px;
+  text-align: center;
+}
+.tab-count.green { background: var(--green); }
+
+/* ── Main Content ── */
+.main-content { padding: 24px 28px; flex: 1; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ── Available Orders ── */
+.panel-layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 24px;
+  align-items: start;
+}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.section-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+}
+.refresh-btn {
+  background: var(--green-light);
+  color: var(--green);
+  border: none;
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background .2s;
+}
+.refresh-btn:hover { background: var(--mint); }
+.refresh-btn.spinning .spin-icon { animation: spin .6s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Order Card */
+.order-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 14px;
+  transition: all .2s;
+  position: relative;
+  overflow: hidden;
+}
+.order-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 4px;
+  background: var(--green);
+  border-radius: 4px 0 0 4px;
+}
+.order-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.order-card.new-order {
+  animation: slideIn .4s ease, highlight 2s ease;
+  border-color: var(--green);
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes highlight {
+  0%, 100% { background: var(--card-bg); }
+  30% { background: var(--green-light); }
+}
+
+.order-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 14px; }
+.order-id {
+  font-family: 'Syne', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--green);
+}
+.order-time { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
+.order-amount {
+  font-family: 'Syne', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text);
+  text-align: right;
+}
+.order-amount span { font-size: 13px; color: var(--text-sub); font-weight: 400; display: block; font-family: 'DM Sans', sans-serif; }
+
+.order-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.meta-item { display: flex; align-items: flex-start; gap: 8px; }
+.meta-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+.meta-text { font-size: 13px; color: var(--text-sub); line-height: 1.4; }
+.meta-text strong { color: var(--text); display: block; font-size: 13px; }
+
+.order-items-preview {
+  background: var(--green-pale);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--text-sub);
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+.rx-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--amber-bg);
+  color: #854F0B;
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.accept-btn {
+  width: 100%;
+  background: var(--green);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 13px;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: 'Syne', sans-serif;
+  cursor: pointer;
+  transition: all .2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.accept-btn:hover { background: var(--green-dark); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(15,110,86,.3); }
+.accept-btn:active { transform: scale(.98); }
+.accept-btn:disabled { background: #ccc; cursor: not-allowed; transform: none; box-shadow: none; }
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 60px 24px;
+  background: var(--card-bg);
+  border-radius: 16px;
+  border: 2px dashed var(--border);
+}
+.empty-icon { font-size: 56px; margin-bottom: 14px; }
+.empty-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 8px; color: var(--text-sub); }
+.empty-sub { font-size: 14px; color: #aaa; }
+
+/* Offline overlay */
+.offline-overlay {
+  position: relative;
+}
+.offline-mask {
+  position: absolute;
+  inset: 0;
+  background: rgba(242,246,243,.85);
+  backdrop-filter: blur(2px);
+  border-radius: 16px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 5;
+  text-align: center;
+}
+.offline-mask.show { display: flex; }
+.offline-mask .big-icon { font-size: 48px; }
+.offline-mask p { font-size: 15px; font-weight: 600; color: var(--text-sub); }
+
+/* ── Active Order Panel ── */
+.active-panel {
+  background: var(--card-bg);
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  position: sticky;
+  top: 160px;
+}
+.active-panel-header {
+  background: var(--green);
+  padding: 18px 20px;
+  color: #fff;
+}
+.active-panel-header h3 {
+  font-family: 'Syne', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.active-panel-header p { font-size: 13px; opacity: .8; }
+
+.active-body { padding: 20px; }
+.no-active {
+  text-align: center;
+  padding: 32px 20px;
+  color: var(--text-sub);
+}
+.no-active .icon { font-size: 40px; margin-bottom: 10px; }
+.no-active p { font-size: 14px; }
+
+.customer-info { margin-bottom: 18px; }
+.customer-info h4 { font-size: 14px; font-weight: 700; margin-bottom: 12px; color: var(--text-sub); text-transform: uppercase; letter-spacing: .5px; font-size: 11px; }
+.info-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+.info-row .ico { font-size: 18px; flex-shrink: 0; }
+.info-row .val { line-height: 1.4; }
+.info-row .val strong { display: block; color: var(--text); }
+.info-row .val span { color: var(--text-sub); font-size: 13px; }
+
+.call-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--green-light);
+  color: var(--green);
+  border: none;
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .2s;
+  margin-top: 4px;
+}
+.call-pill:hover { background: var(--mint); }
+
+.items-list { margin-bottom: 18px; }
+.item-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #f5f5f5;
+  font-size: 13px;
+}
+.item-row:last-child { border-bottom: none; }
+.item-total-row {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 700;
+  font-size: 15px;
+  padding-top: 10px;
+  margin-top: 6px;
+  border-top: 2px solid var(--border);
+}
+.item-total-row span:last-child { color: var(--green); }
+
+/* Status Buttons */
+.status-section h4 {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-sub);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-bottom: 12px;
+}
+.status-btn {
+  width: 100%;
+  padding: 13px;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: 'Syne', sans-serif;
+  cursor: pointer;
+  transition: all .2s;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.status-btn.picked { background: #FFF3CD; color: #856404; }
+.status-btn.picked:hover { background: #FFE082; }
+.status-btn.onway { background: #CCE5FF; color: #004085; }
+.status-btn.onway:hover { background: #B8DAFF; }
+.status-btn.delivered { background: var(--green-light); color: var(--green-dark); }
+.status-btn.delivered:hover { background: var(--mint); }
+.status-btn:disabled { background: #f0f0f0; color: #aaa; cursor: not-allowed; }
+
+/* Progress stepper */
+.progress-steps { margin-bottom: 18px; }
+.p-step { display: flex; align-items: center; gap: 10px; padding: 8px 0; position: relative; }
+.p-step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 14px;
+  top: 32px;
+  width: 2px;
+  height: 16px;
+  background: var(--border);
+}
+.p-step.done::after { background: var(--green); }
+.p-dot {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #999;
+  flex-shrink: 0;
+  transition: all .3s;
+}
+.p-step.done .p-dot { background: var(--green); color: #fff; }
+.p-step.active .p-dot { background: var(--green); color: #fff; box-shadow: 0 0 0 5px var(--green-light); }
+.p-step-info .p-label { font-size: 14px; font-weight: 600; color: #999; }
+.p-step.done .p-label, .p-step.active .p-label { color: var(--text); }
+.p-step-info .p-time { font-size: 11px; color: var(--text-sub); }
+
+/* ── History Tab ── */
+.history-table-wrap {
+  background: var(--card-bg);
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+.history-table { width: 100%; border-collapse: collapse; }
+.history-table th {
+  background: var(--green-pale);
+  padding: 13px 18px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-sub);
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  border-bottom: 1px solid var(--border);
+}
+.history-table td {
+  padding: 14px 18px;
+  font-size: 14px;
+  border-bottom: 1px solid #f5f5f5;
+  vertical-align: middle;
+}
+.history-table tr:last-child td { border-bottom: none; }
+.history-table tr:hover td { background: var(--green-pale); }
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.status-pill.delivered { background: var(--green-light); color: var(--green-dark); }
+.status-pill.accepted { background: #CCE5FF; color: #004085; }
+.status-pill.on_the_way { background: #FFF3CD; color: #856404; }
+.status-pill.picked_up { background: #e0d4ff; color: #4c0099; }
+.status-pill.pending { background: #f5f5f5; color: #888; }
+.status-pill.cancelled { background: #fff0f0; color: #c00; }
+
+.earnings-badge {
+  font-family: 'Syne', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--green);
+}
+
+/* ── Toast ── */
+.toast-container {
+  position: fixed;
+  top: 80px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+.toast {
+  background: var(--white);
+  border-radius: 14px;
+  padding: 14px 18px;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 300px;
+  animation: toastIn .3s ease;
+  pointer-events: all;
+  border-left: 4px solid var(--green);
+}
+.toast.error { border-left-color: var(--red); }
+.toast.info { border-left-color: #007bff; }
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(24px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.toast-icon { font-size: 22px; }
+.toast-text strong { display: block; font-size: 14px; font-weight: 700; }
+.toast-text span { font-size: 12px; color: var(--text-sub); }
+
+/* ── Loading spinner ── */
+.spinner-wrap { text-align: center; padding: 48px; color: var(--text-sub); }
+.spinner {
+  width: 36px; height: 36px;
+  border: 3px solid var(--border);
+  border-top-color: var(--green);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+  margin: 0 auto 12px;
+}
+
+/* ── New Order Ring ── */
+.new-order-ring {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.6);
+  z-index: 500;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+.new-order-ring.show { display: flex; }
+.ring-card {
+  background: #fff;
+  border-radius: 24px;
+  padding: 40px;
+  max-width: 380px;
+  width: 90%;
+  text-align: center;
+  animation: ringPop .4s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes ringPop {
+  from { transform: scale(.7); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.ring-icon { font-size: 64px; margin-bottom: 14px; animation: ringBounce 1s ease infinite; }
+@keyframes ringBounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+.ring-card h2 { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: var(--green); margin-bottom: 8px; }
+.ring-card p { font-size: 15px; color: var(--text-sub); margin-bottom: 24px; }
+.ring-amount { font-family: 'Syne', sans-serif; font-size: 32px; font-weight: 800; color: var(--text); margin-bottom: 20px; }
+.ring-btns { display: flex; gap: 10px; }
+.ring-accept { flex: 2; background: var(--green); color: #fff; border: none; border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 700; font-family: 'Syne', sans-serif; cursor: pointer; }
+.ring-decline { flex: 1; background: #f5f5f5; color: #888; border: none; border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 700; cursor: pointer; }
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .panel-layout { grid-template-columns: 1fr; }
+  .active-panel { position: static; }
+  .top-nav { padding: 0 16px; }
+  .main-content { padding: 16px; }
+  .stats-bar { padding: 0 16px; }
+  .stat-item { padding: 14px 18px; }
+}
+@media (max-width: 600px) {
+  .rider-info, .nav-badge { display: none; }
+  .history-table th:nth-child(4), .history-table td:nth-child(4) { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── Toast Container ── -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ── New Order Alert Modal ── -->
+<div class="new-order-ring" id="new-order-ring">
+  <div class="ring-card">
+    <div class="ring-icon">🛵</div>
+    <h2>New Order Nearby!</h2>
+    <p id="ring-address">Customer is waiting...</p>
+    <div class="ring-amount" id="ring-amount">₹0</div>
+    <div class="ring-btns">
+      <button class="ring-accept" onclick="acceptRingOrder()">✓ Accept Order</button>
+      <button class="ring-decline" onclick="declineRing()">Skip</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ LOGIN SCREEN ══════════ -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">💊 Pharma<span>Fast</span></div>
+    <div class="login-badge">🛵 Rider Portal</div>
+    <h2>Rider Login</h2>
+    <p>Sign in to your delivery dashboard</p>
+    <div class="login-error" id="login-error-msg">Invalid email or password.</div>
+    <div class="field">
+      <label>Email Address</label>
+      <input type="email" id="l-email" placeholder="rider@demo.com" value="rider@demo.com">
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="l-pass" placeholder="••••••••" value="demo123">
+    </div>
+    <button class="login-btn" onclick="doLogin()">Login to Dashboard →</button>
+    <div class="login-demo">
+      Demo: <strong onclick="fillDemo()">rider@demo.com / demo123</strong>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ DASHBOARD ══════════ -->
+<div id="dashboard">
+
+  <!-- Nav -->
+  <nav class="top-nav">
+    <div class="nav-brand">💊 Pharma<span>Fast</span> <span class="nav-badge">RIDER</span></div>
+    <div class="nav-right">
+      <div class="rider-info">
+        <div class="rider-name" id="rider-name-nav">Rajan K.</div>
+        <div class="rider-status-text" id="rider-status-text">● Online</div>
+      </div>
+      <div class="toggle-wrap">
+        <span class="toggle-label" id="toggle-lbl" style="color:var(--mint)">Online</span>
+        <button class="toggle on" id="online-toggle" onclick="toggleOnline()"></button>
+      </div>
+      <button class="logout-nav-btn" onclick="doLogout()">Logout</button>
+    </div>
+  </nav>
+
+  <!-- Stats Bar -->
+  <div class="stats-bar">
+    <div class="stat-item">
+      <div class="stat-val" id="stat-deliveries">0</div>
+      <div class="stat-label">Today's Deliveries</div>
+      <div class="stat-change" id="stat-change">+0 this week</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-val" id="stat-earnings">₹0</div>
+      <div class="stat-label">Today's Earnings</div>
+      <div class="stat-change">₹40 per delivery</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-val" id="stat-available">0</div>
+      <div class="stat-label">Available Orders</div>
+      <div class="stat-change">Waiting for pickup</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-val" id="stat-active-status">—</div>
+      <div class="stat-label">Active Order</div>
+      <div class="stat-change" id="stat-active-label">No active order</div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs-bar">
+    <button class="tab-btn active" onclick="switchTab('available')" id="tab-available">
+      📦 Available Orders <span class="tab-count" id="avail-count">0</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('active')" id="tab-active">
+      🛵 Active Order <span class="tab-count green" id="active-indicator" style="display:none">1</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('history')" id="tab-history">
+      📋 History <span class="tab-count green" id="hist-count">0</span>
+    </button>
+  </div>
+
+  <!-- Main -->
+  <div class="main-content">
+
+    <!-- ── Available Orders Tab ── -->
+    <div class="tab-panel active" id="panel-available">
+      <div class="panel-layout">
+        <div>
+          <div class="section-head">
+            <div class="section-title">Available Orders</div>
+            <button class="refresh-btn" onclick="loadAvailable()" id="refresh-btn">
+              <span class="spin-icon">↻</span> Refresh
+            </button>
+          </div>
+          <div class="offline-overlay">
+            <div id="offline-mask" class="offline-mask">
+              <div class="big-icon">😴</div>
+              <p>You are offline.<br>Toggle Online to see orders.</p>
+            </div>
+            <div id="available-orders-list">
+              <div class="spinner-wrap"><div class="spinner"></div>Loading orders...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Active Order Sidebar -->
+        <div>
+          <div class="section-head">
+            <div class="section-title">Current Order</div>
+          </div>
+          <div class="active-panel" id="active-order-sidebar">
+            <div class="active-panel-header">
+              <h3>Active Delivery</h3>
+              <p id="active-order-id-head">No order accepted yet</p>
+            </div>
+            <div class="active-body" id="active-body-sidebar">
+              <div class="no-active">
+                <div class="icon">🛵</div>
+                <p>Accept an order to see details here</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Active Order Tab ── -->
+    <div class="tab-panel" id="panel-active">
+      <div class="section-head">
+        <div class="section-title">Active Order Details</div>
+      </div>
+      <div id="active-order-full">
+        <div class="empty-state">
+          <div class="empty-icon">🛵</div>
+          <div class="empty-title">No Active Order</div>
+          <p class="empty-sub">Accept an order from the Available tab to start delivering</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── History Tab ── -->
+    <div class="tab-panel" id="panel-history">
+      <div class="section-head">
+        <div class="section-title">Delivery History</div>
+        <div id="total-earnings-display" style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--green)"></div>
+      </div>
+      <div class="history-table-wrap">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Customer</th>
+              <th>Items</th>
+              <th>Address</th>
+              <th>Total</th>
+              <th>Earning</th>
+              <th>Status</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody id="history-tbody">
+            <tr><td colspan="8" style="text-align:center;padding:40px;color:#aaa">No deliveries yet</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /main-content -->
+</div><!-- /dashboard -->
+
+<script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+<script>
+// ── Config ──────────────────────────────────────────────────────────────────
+const API = window.location.origin + '/api';
+let token = localStorage.getItem('pf_rider_token');
+let currentUser = null;
+let socket = null;
+let isOnline = true;
+let activeOrder = null;
+let availableOrders = [];
+let ringOrderId = null;
+let pollInterval = null;
+
+// ── Helpers ─────────────────────────────────────────────────────────────────
+async function api(method, path, body) {
+  const opts = {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { 'Authorization': 'Bearer ' + token } : {})
+    }
+  };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(API + path, opts);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Request failed');
+  return data;
+}
+
+function toast(icon, title, sub, type = 'success') {
+  const ct = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = 'toast ' + (type === 'error' ? 'error' : type === 'info' ? 'info' : '');
+  t.innerHTML = `<div class="toast-icon">${icon}</div><div class="toast-text"><strong>${title}</strong><span>${sub}</span></div>`;
+  ct.appendChild(t);
+  setTimeout(() => { t.style.opacity='0'; t.style.transform='translateX(24px)'; t.style.transition='.3s'; setTimeout(()=>t.remove(),300); }, 3500);
+}
+
+function timeAgo(iso) {
+  const diff = (Date.now() - new Date(iso)) / 1000;
+  if (diff < 60) return Math.round(diff) + 's ago';
+  if (diff < 3600) return Math.round(diff/60) + 'm ago';
+  return Math.round(diff/3600) + 'h ago';
+}
+
+function fmtTime(iso) {
+  return new Date(iso).toLocaleTimeString('en-IN', {hour:'2-digit',minute:'2-digit'});
+}
+
+function statusLabel(s) {
+  return { pending:'Pending', accepted:'Accepted', picked_up:'Picked Up', on_the_way:'On the Way', delivered:'Delivered', cancelled:'Cancelled' }[s] || s;
+}
+
+function statusIcon(s) {
+  return { pending:'⏳', accepted:'✅', picked_up:'📦', on_the_way:'🛵', delivered:'🎉', cancelled:'❌' }[s] || '•';
+}
+
+// ── Login ───────────────────────────────────────────────────────────────────
+function fillDemo() {
+  document.getElementById('l-email').value = 'rider@demo.com';
+  document.getElementById('l-pass').value = 'demo123';
+}
+
+async function doLogin() {
+  const email = document.getElementById('l-email').value.trim();
+  const pass = document.getElementById('l-pass').value;
+  const errEl = document.getElementById('login-error-msg');
+  errEl.style.display = 'none';
+  try {
+    const data = await api('POST', '/auth/login', { email, password: pass });
+    if (data.user.role !== 'delivery_boy') throw new Error('Not a delivery boy account');
+    token = data.token;
+    currentUser = data.user;
+    localStorage.setItem('pf_rider_token', token);
+    initDashboard();
+  } catch(e) {
+    errEl.textContent = e.message || 'Login failed';
+    errEl.style.display = 'block';
+  }
+}
+
+function doLogout() {
+  token = null;
+  currentUser = null;
+  localStorage.removeItem('pf_rider_token');
+  if (socket) socket.disconnect();
+  if (pollInterval) clearInterval(pollInterval);
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+}
+
+// ── Init ────────────────────────────────────────────────────────────────────
+async function initDashboard() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'flex';
+
+  document.getElementById('rider-name-nav').textContent = currentUser.name;
+
+  // Connect Socket
+  socket = io(window.location.origin);
+  socket.emit('join', { role: 'delivery_boy', userId: currentUser.id });
+
+  socket.on('order:new', (order) => {
+    if (!isOnline) return;
+    availableOrders.unshift(order);
+    renderAvailable();
+    showRingAlert(order);
+    toast('🔔', 'New Order!', order.customerName + ' — ₹' + order.total, 'info');
+  });
+
+  socket.on('order:taken', ({ orderId }) => {
+    availableOrders = availableOrders.filter(o => o.id !== orderId);
+    renderAvailable();
+  });
+
+  await loadAvailable();
+  await loadActive();
+  await loadHistory();
+
+  // Poll every 15s as fallback
+  pollInterval = setInterval(async () => {
+    await loadAvailable();
+    if (activeOrder) await refreshActiveOrder();
+  }, 15000);
+}
+
+// ── Auto-login if token ─────────────────────────────────────────────────────
+async function tryAutoLogin() {
+  if (!token) return;
+  try {
+    const user = await api('GET', '/auth/me');
+    if (user.role !== 'delivery_boy') { localStorage.removeItem('pf_rider_token'); return; }
+    currentUser = user;
+    initDashboard();
+  } catch { localStorage.removeItem('pf_rider_token'); }
+}
+
+// ── Online Toggle ────────────────────────────────────────────────────────────
+function toggleOnline() {
+  isOnline = !isOnline;
+  const toggle = document.getElementById('online-toggle');
+  const lbl = document.getElementById('toggle-lbl');
+  const mask = document.getElementById('offline-mask');
+  const statusText = document.getElementById('rider-status-text');
+  if (isOnline) {
+    toggle.classList.add('on');
+    lbl.style.color = 'var(--mint)';
+    lbl.textContent = 'Online';
+    statusText.textContent = '● Online';
+    mask.classList.remove('show');
+    loadAvailable();
+    toast('✅', 'You are Online', 'Orders will appear now');
+  } else {
+    toggle.classList.remove('on');
+    lbl.style.color = '#ccc';
+    lbl.textContent = 'Offline';
+    statusText.textContent = '○ Offline';
+    mask.classList.add('show');
+    toast('😴', 'You are Offline', 'Go online to receive orders', 'info');
+  }
+}
+
+// ── Tab Switching ────────────────────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  document.getElementById('panel-' + name).classList.add('active');
+  if (name === 'history') loadHistory();
+}
+
+// ── Load Available Orders ────────────────────────────────────────────────────
+async function loadAvailable() {
+  const btn = document.getElementById('refresh-btn');
+  btn.classList.add('spinning');
+  try {
+    availableOrders = await api('GET', '/orders/available');
+    renderAvailable();
+  } catch(e) {
+    if (e.message === 'No token') { doLogout(); return; }
+  } finally {
+    btn.classList.remove('spinning');
+  }
+}
+
+function renderAvailable() {
+  const list = document.getElementById('available-orders-list');
+  const cnt = document.getElementById('avail-count');
+  const statAvail = document.getElementById('stat-available');
+
+  cnt.textContent = availableOrders.length;
+  statAvail.textContent = availableOrders.length;
+
+  if (availableOrders.length === 0) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-title">No orders right now</div><p class="empty-sub">New orders will appear here automatically</p></div>`;
+    return;
+  }
+
+  list.innerHTML = '';
+  availableOrders.forEach(order => {
+    const card = document.createElement('div');
+    card.className = 'order-card';
+    card.id = 'order-card-' + order.id;
+    const itemsText = order.items.map(i => `${i.name} ×${i.qty || 1}`).join(', ');
+    card.innerHTML = `
+      <div class="order-top">
+        <div>
+          <div class="order-id">${order.shortId || '#' + order.id.slice(0,8).toUpperCase()}</div>
+          <div class="order-time">Placed ${timeAgo(order.createdAt)}</div>
+        </div>
+        <div class="order-amount">₹${order.total}<span>${order.items.length} item(s)</span><span style="font-size:11px;color:var(--green);font-weight:700">${order.paymentMode || 'COD'}</span></div>
+      </div>
+      ${order.prescriptionRequired ? `<div class="rx-badge">📋 Prescription Required</div>` : ''}
+      ${order.prescriptionPath ? `<a href="/uploads/${order.prescriptionPath}" target="_blank" style="display:block; font-size:12px; color:var(--green); font-weight:700; margin-bottom:12px; text-decoration:none">🔍 View Attached Prescription</a>` : (order.prescriptionRequired ? `<div style="font-size:11px; color:var(--red); margin-bottom:12px">⚠️ No file uploaded yet</div>` : '')}
+      <div class="order-meta">
+        <div class="meta-item"><div class="meta-icon">👤</div><div class="meta-text"><strong>${order.customerName}</strong>${order.customerPhone}</div></div>
+        <div class="meta-item"><div class="meta-icon">📍</div><div class="meta-text"><strong>Delivery Address</strong>${order.address}</div></div>
+      </div>
+      <div class="order-items-preview">🛍️ ${itemsText}</div>
+      <button class="accept-btn" onclick="acceptOrder('${order.id}')" id="accept-btn-${order.id}">
+        ✓ Accept & Deliver — +₹40 earning
+      </button>
+    `;
+    list.appendChild(card);
+  });
+}
+
+// ── Accept Order ─────────────────────────────────────────────────────────────
+async function acceptOrder(orderId) {
+  const btn = document.getElementById('accept-btn-' + orderId);
+  if (btn) { btn.disabled = true; btn.textContent = 'Accepting...'; }
+  try {
+    activeOrder = await api('PUT', '/orders/' + orderId + '/accept');
+    availableOrders = availableOrders.filter(o => o.id !== orderId);
+    renderAvailable();
+    renderActiveOrderSidebar();
+    renderActiveOrderFull();
+    updateStats();
+    document.getElementById('active-indicator').style.display = 'inline-flex';
+    toast('🛵', 'Order Accepted!', 'Head to pharmacy for pickup');
+    closeRing();
+  } catch(e) {
+    if (btn) { btn.disabled = false; btn.textContent = '✓ Accept & Deliver — +₹40 earning'; }
+    toast('❌', 'Error', e.message, 'error');
+  }
+}
+
+// ── Refresh Active Order ─────────────────────────────────────────────────────
+async function refreshActiveOrder() {
+  if (!activeOrder) return;
+  try {
+    activeOrder = await api('GET', '/orders/' + activeOrder.id);
+    renderActiveOrderSidebar();
+    renderActiveOrderFull();
+    updateStats();
+    if (activeOrder.status === 'delivered') {
+      setTimeout(() => { activeOrder = null; renderActiveOrderSidebar(); renderActiveOrderFull(); updateStats(); loadHistory(); document.getElementById('active-indicator').style.display = 'none'; }, 3000);
+    }
+  } catch {}
+}
+
+// ── Render Active Order Sidebar ──────────────────────────────────────────────
+function renderActiveOrderSidebar() {
+  const head = document.getElementById('active-order-id-head');
+  const body = document.getElementById('active-body-sidebar');
+
+  if (!activeOrder) {
+    head.textContent = 'No order accepted yet';
+    body.innerHTML = '<div class="no-active"><div class="icon">🛵</div><p>Accept an order to see details here</p></div>';
+    return;
+  }
+
+  head.textContent = (activeOrder.shortId || '#' + activeOrder.id.slice(0,8).toUpperCase()) + ' · ' + statusLabel(activeOrder.status);
+
+  const steps = ['accepted','picked_up','on_the_way','delivered'];
+  if (activeOrder.status === 'cancelled') steps.push('cancelled');
+  const currentIdx = steps.indexOf(activeOrder.status);
+
+  const nextActions = {
+    accepted: { label: '📦 Mark as Picked Up', cls: 'picked', next: 'picked_up' },
+    picked_up: { label: '🛵 On the Way', cls: 'onway', next: 'on_the_way' },
+    on_the_way: { label: '✅ Mark Delivered', cls: 'delivered', next: 'delivered' },
+    delivered: null
+  };
+  const action = nextActions[activeOrder.status];
+
+  const stepsHtml = steps.map((s, i) => {
+    const done = i < currentIdx;
+    const active = i === currentIdx;
+    const ts = activeOrder.statusHistory?.find(h => h.status === s);
+    return `<div class="p-step ${done?'done':''} ${active?'active':''}">
+      <div class="p-dot">${done?'✓':i+1}</div>
+      <div class="p-step-info">
+        <div class="p-label">${statusIcon(s)} ${statusLabel(s)}</div>
+        ${ts ? `<div class="p-time">${fmtTime(ts.time)}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+
+  body.innerHTML = `
+    <div class="progress-steps">${stepsHtml}</div>
+    <div class="customer-info">
+      <div class="info-row"><div class="ico">👤</div><div class="val"><strong>${activeOrder.customerName}</strong><span>${activeOrder.customerPhone}</span></div></div>
+      <div class="info-row"><div class="ico">📍</div><div class="val"><strong>Delivery Address</strong><span>${activeOrder.address}</span></div></div>
+      ${activeOrder.prescriptionRequired ? `<div class="rx-badge" style="margin-bottom:8px">📋 Prescription Required</div>` : ''}
+      ${activeOrder.prescriptionPath ? `<a href="/uploads/${activeOrder.prescriptionPath}" target="_blank" style="display:inline-flex; align-items:center; gap:6px; background:var(--green-light); color:var(--green); padding:6px 12px; border-radius:8px; font-size:12px; text-decoration:none; font-weight:700; margin-top:8px">📄 View Prescription</a>` : (activeOrder.prescriptionRequired ? `<div style="font-size:11px; color:var(--red); margin-top:4px">⚠️ Prescription file missing</div>` : '')}
+      ${activeOrder.customerPhone ? `<button class="call-pill" onclick="window.location='tel:${activeOrder.customerPhone}'">📞 Call Customer</button>` : ''}
+    </div>
+    <div class="status-section">
+      <h4>Update Status</h4>
+      ${action ? `<button class="status-btn ${action.cls}" onclick="updateStatus('${action.next}')">${action.label}</button>` : '<div style="text-align:center;padding:12px;color:var(--green);font-weight:700;font-size:15px">🎉 Order Delivered!</div>'}
+    </div>
+  `;
+}
+
+// ── Render Active Order Full Tab ─────────────────────────────────────────────
+function renderActiveOrderFull() {
+  const el = document.getElementById('active-order-full');
+  if (!activeOrder) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">🛵</div><div class="empty-title">No Active Order</div><p class="empty-sub">Accept an order from the Available tab</p></div>`;
+    return;
+  }
+
+  const steps = ['pending','accepted','picked_up','on_the_way','delivered'];
+  if (activeOrder.status === 'cancelled') steps.push('cancelled');
+  const currentIdx = steps.indexOf(activeOrder.status);
+  const nextActions = {
+    accepted: { label: '📦 Mark as Picked Up', cls: 'picked', next: 'picked_up' },
+    picked_up: { label: '🛵 Mark On the Way', cls: 'onway', next: 'on_the_way' },
+    on_the_way: { label: '✅ Mark as Delivered', cls: 'delivered', next: 'delivered' },
+    delivered: null
+  };
+  const action = nextActions[activeOrder.status];
+
+  let itemsHtml = activeOrder.items.map(i => `<div class="item-row"><span>${i.icon || '💊'} ${i.name} × ${i.qty||1}</span><span>₹${(i.price*(i.qty||1))}</span></div>`).join('');
+
+  const stepsHtml = steps.map((s, i) => {
+    const done = i < currentIdx;
+    const active = i === currentIdx;
+    const ts = activeOrder.statusHistory?.find(h => h.status === s);
+    return `<div class="p-step ${done?'done':''} ${active?'active':''}">
+      <div class="p-dot">${done?'✓':i+1}</div>
+      <div class="p-step-info">
+        <div class="p-label">${statusIcon(s)} ${statusLabel(s)}</div>
+        ${ts ? `<div class="p-time">${fmtTime(ts.time)}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+
+  el.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 360px;gap:24px;align-items:start">
+      <div>
+        <div class="order-card" style="margin-bottom:20px">
+          <div class="order-top">
+            <div>
+              <div class="order-id">${activeOrder.shortId || '#'+activeOrder.id.slice(0,8).toUpperCase()}</div>
+              <div class="order-time">Placed ${timeAgo(activeOrder.createdAt)}</div>
+            </div>
+            <div class="order-amount">₹${activeOrder.total}<span>${activeOrder.paymentMode || 'COD'}</span><span>+₹40 your earning</span></div>
+          </div>
+        </div>
+        <div class="active-panel" style="position:static">
+          <div class="active-panel-header"><h3>Customer Details</h3><p>${statusLabel(activeOrder.status)}</p></div>
+          <div class="active-body">
+            <div class="customer-info">
+              <div class="info-row"><div class="ico">👤</div><div class="val"><strong>${activeOrder.customerName}</strong><span>${activeOrder.customerPhone}</span></div></div>
+              <div class="info-row"><div class="ico">📍</div><div class="val"><strong>Delivery To</strong><span>${activeOrder.address}</span></div></div>
+              ${activeOrder.prescriptionRequired ? `<div class="rx-badge" style="margin-top:8px">📋 Prescription Required — Verify before handing over</div>` : ''}
+              ${activeOrder.prescriptionPath ? `
+                <div style="margin-top:8px; padding:12px; background:var(--green-pale); border-radius:10px; border:1px solid var(--mint)">
+                  <div style="font-size:12px; font-weight:700; margin-bottom:6px">Prescription Document:</div>
+                  <a href="/uploads/${activeOrder.prescriptionPath}" target="_blank" style="display:inline-flex; align-items:center; gap:6px; background:var(--green); color:#fff; padding:8px 14px; border-radius:8px; font-size:13px; text-decoration:none; font-weight:700">📄 View Full Prescription</a>
+                </div>
+              ` : (activeOrder.prescriptionRequired ? `<div style="color:var(--red); font-size:12px; font-weight:700; margin-top:8px">⚠️ Customer has not uploaded a file.</div>` : '')}
+              ${activeOrder.customerPhone ? `<button class="call-pill" onclick="window.location='tel:${activeOrder.customerPhone}'">📞 Call Customer</button>` : ''}
+            </div>
+            <div class="items-list">
+              <h4 style="font-size:11px;font-weight:700;color:var(--text-sub);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">Order Items</h4>
+              ${itemsHtml}
+              <div class="item-total-row"><span>Total</span><span>₹${activeOrder.total}</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="active-panel" style="position:sticky;top:160px">
+          <div class="active-panel-header"><h3>Order Progress</h3><p>Update delivery status</p></div>
+          <div class="active-body">
+            <div class="progress-steps">${stepsHtml}</div>
+            <div class="status-section">
+              <h4>Next Action</h4>
+              ${action ? `<button class="status-btn ${action.cls}" onclick="updateStatus('${action.next}')">${action.label}</button>` : '<div style="text-align:center;padding:16px;color:var(--green);font-weight:700;font-size:16px;background:var(--green-light);border-radius:12px">🎉 Order Delivered Successfully!</div>'}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ── Update Status ─────────────────────────────────────────────────────────────
+async function updateStatus(status) {
+  try {
+    activeOrder = await api('PUT', '/orders/' + activeOrder.id + '/status', { status });
+    renderActiveOrderSidebar();
+    renderActiveOrderFull();
+    updateStats();
+    const msgs = { picked_up: ['📦','Picked Up!','Head to customer address'], on_the_way: ['🛵','On the Way!','Customer has been notified'], delivered: ['🎉','Delivered!','Great job! +₹40 earned'] };
+    const m = msgs[status];
+    if (m) toast(m[0], m[1], m[2]);
+    if (status === 'delivered') {
+      setTimeout(() => { activeOrder = null; renderActiveOrderSidebar(); renderActiveOrderFull(); updateStats(); loadHistory(); document.getElementById('active-indicator').style.display = 'none'; }, 3000);
+    }
+  } catch(e) {
+    toast('❌', 'Error', e.message, 'error');
+  }
+}
+
+// ── Load Active Order ─────────────────────────────────────────────────────────
+async function loadActive() {
+  try {
+    const orders = await api('GET', '/orders/mine');
+    const active = orders.find(o => o.deliveryBoyId === currentUser.id && !['delivered', 'cancelled'].includes(o.status));
+    if (active) {
+      activeOrder = active;
+      renderActiveOrderSidebar();
+      renderActiveOrderFull();
+      document.getElementById('active-indicator').style.display = 'inline-flex';
+    }
+    updateStats();
+  } catch {}
+}
+
+// ── Load History ──────────────────────────────────────────────────────────────
+async function loadHistory() {
+  try {
+    const orders = await api('GET', '/orders/mine');
+    const tbody = document.getElementById('history-tbody');
+    const histCnt = document.getElementById('hist-count');
+    histCnt.textContent = orders.length;
+
+    const today = new Date().toDateString();
+    const todayDeliveries = orders.filter(o => o.status === 'delivered' && new Date(o.updatedAt).toDateString() === today);
+    document.getElementById('stat-deliveries').textContent = todayDeliveries.length;
+    document.getElementById('stat-earnings').textContent = '₹' + (todayDeliveries.length * 40);
+    document.getElementById('stat-change').textContent = '+' + orders.filter(o=>o.status==='delivered').length + ' total';
+
+    const totalEarnings = orders.filter(o => o.status === 'delivered').length * 40;
+    document.getElementById('total-earnings-display').textContent = 'Total: ₹' + totalEarnings;
+
+    if (orders.length === 0) { tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:#aaa">No deliveries yet</td></tr>'; return; }
+
+    tbody.innerHTML = orders.map(o => `
+      <tr>
+        <td><strong>${o.shortId || '#'+o.id.slice(0,8).toUpperCase()}</strong></td>
+        <td>${o.customerName}</td>
+        <td>${o.items.length} item(s)</td>
+        <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${o.address}</td>
+        <td>₹${o.total}</td>
+        <td class="earnings-badge">${o.status === 'delivered' ? '₹40' : '—'}</td>
+        <td><span class="status-pill ${o.status}">${statusIcon(o.status)} ${statusLabel(o.status)}</span></td>
+        <td>${new Date(o.createdAt).toLocaleDateString('en-IN')}</td>
+      </tr>
+    `).join('');
+  } catch {}
+}
+
+// ── Stats Update ──────────────────────────────────────────────────────────────
+function updateStats() {
+  if (activeOrder && activeOrder.status !== 'delivered') {
+    document.getElementById('stat-active-status').textContent = statusIcon(activeOrder.status);
+    document.getElementById('stat-active-label').textContent = statusLabel(activeOrder.status);
+  } else {
+    document.getElementById('stat-active-status').textContent = '—';
+    document.getElementById('stat-active-label').textContent = 'No active order';
+  }
+}
+
+// ── Ring Alert ────────────────────────────────────────────────────────────────
+function showRingAlert(order) {
+  ringOrderId = order.id;
+  document.getElementById('ring-address').textContent = '📍 ' + order.address;
+  document.getElementById('ring-amount').textContent = '₹' + order.total;
+  document.getElementById('new-order-ring').classList.add('show');
+  setTimeout(closeRing, 30000); // auto-close after 30s
+}
+
+function acceptRingOrder() {
+  if (ringOrderId) acceptOrder(ringOrderId);
+  closeRing();
+}
+
+function closeRing() {
+  document.getElementById('new-order-ring').classList.remove('show');
+  ringOrderId = null;
+}
+
+// ── Boot ──────────────────────────────────────────────────────────────────────
+document.addEventListener('keydown', e => { if (e.key === 'Enter' && document.getElementById('login-screen').style.display !== 'none') doLogin(); });
+tryAutoLogin();
+</script>
+</body>
+</html>

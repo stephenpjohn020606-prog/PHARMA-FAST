@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pharma Fast – Medicine Delivery</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Arial,sans-serif;background:#f4f7f4;color:#222;min-height:100vh}
+  nav{background:#0F6E56;color:#fff;padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100}
+  .nav-logo{font-size:22px;font-weight:700;letter-spacing:.5px;cursor:pointer}
+  .nav-logo span{color:#9FE1CB}
+  .nav-links{display:flex;gap:24px;align-items:center}
+  .nav-links a{color:rgba(255,255,255,.8);text-decoration:none;font-size:14px;cursor:pointer}
+  .nav-links a:hover{color:#fff}
+  .nav-cart-btn{background:#fff;color:#0F6E56;border:none;border-radius:20px;padding:7px 18px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px}
+  .cart-count{background:#E24B4A;color:#fff;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+  .page{display:none;max-width:1100px;margin:0 auto;padding:32px 24px}
+  .page.active{display:block}
+  .hero{background:linear-gradient(135deg,#0F6E56,#1D9E75);color:#fff;border-radius:18px;padding:40px 40px;margin-bottom:32px;display:flex;justify-content:space-between;align-items:center}
+  .hero h1{font-size:32px;margin-bottom:10px}
+  .hero p{font-size:15px;opacity:.85;margin-bottom:20px;max-width:400px}
+  .hero-btn{background:#fff;color:#0F6E56;border:none;border-radius:25px;padding:12px 28px;font-size:15px;font-weight:700;cursor:pointer}
+  .hero-icon{font-size:80px;opacity:.6}
+  .emergency-banner{background:#FAEEDA;border-radius:12px;padding:16px 20px;display:flex;align-items:center;gap:16px;margin-bottom:28px;cursor:pointer;border:1px solid #FAC775}
+  .emergency-banner:hover{background:#FAC775}
+  .section-title{font-size:18px;font-weight:700;margin-bottom:16px;color:#222}
+  .categories-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:32px}
+  .cat-card{background:#fff;border-radius:14px;padding:18px 10px;text-align:center;cursor:pointer;border:1px solid #e8e8e8;transition:all .15s}
+  .cat-card:hover{border-color:#0F6E56;background:#E1F5EE;transform:translateY(-2px)}
+  .cat-icon{font-size:28px;margin-bottom:8px}
+  .cat-label{font-size:12px;font-weight:600;color:#444}
+  .medicines-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-bottom:32px}
+  .med-card{background:#fff;border-radius:14px;padding:20px;border:1px solid #e8e8e8;cursor:pointer;transition:all .15s}
+  .med-card:hover{border-color:#0F6E56;box-shadow:0 4px 16px rgba(15,110,86,.1);transform:translateY(-2px)}
+  .med-card-icon{font-size:40px;background:#E1F5EE;border-radius:12px;width:64px;height:64px;display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+  .med-card h3{font-size:15px;font-weight:700;margin-bottom:4px}
+  .med-card .sub{font-size:12px;color:#888;margin-bottom:10px}
+  .med-card .price{font-size:18px;font-weight:700;color:#0F6E56;margin-bottom:12px}
+  .rx-tag{background:#FAEEDA;color:#854F0B;border-radius:6px;padding:3px 8px;font-size:11px;font-weight:600;display:inline-block;margin-bottom:10px}
+  .add-to-cart-btn{background:#0F6E56;color:#fff;border:none;border-radius:10px;padding:9px 0;width:100%;font-size:13px;font-weight:600;cursor:pointer}
+  .add-to-cart-btn:hover{background:#085041}
+  .add-to-cart-btn.added{background:#1D9E75}
+  .detail-layout{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start}
+  .detail-img{background:#E1F5EE;border-radius:18px;height:280px;display:flex;align-items:center;justify-content:center;font-size:100px}
+  .detail-info h1{font-size:26px;font-weight:700;margin-bottom:6px}
+  .detail-sub{font-size:14px;color:#888;margin-bottom:16px}
+  .detail-price{font-size:32px;font-weight:700;color:#0F6E56;margin-bottom:14px}
+  .detail-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f0f0f0;font-size:14px}
+  .qty-row{display:flex;align-items:center;gap:14px;margin:18px 0}
+  .qty-btn{width:36px;height:36px;border-radius:50%;border:2px solid #0F6E56;background:#fff;color:#0F6E56;font-size:20px;cursor:pointer;font-weight:700}
+  .qty-val{font-size:18px;font-weight:700;min-width:28px;text-align:center}
+  .big-btn{background:#0F6E56;color:#fff;border:none;border-radius:14px;padding:14px 32px;font-size:16px;font-weight:700;cursor:pointer;width:100%;margin-top:8px}
+  .big-btn:hover{background:#085041}
+  .big-btn.secondary{background:#fff;color:#0F6E56;border:2px solid #0F6E56}
+  .rx-layout{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start}
+  .upload-box{border:3px dashed #5DCAA5;border-radius:18px;padding:50px 30px;text-align:center;cursor:pointer;background:#E1F5EE;transition:all .15s}
+  .upload-box:hover{background:#c8ede1}
+  .info-card{background:#fff;border-radius:14px;padding:20px;border:1px solid #e8e8e8;margin-bottom:16px}
+  .info-card h3{font-size:15px;font-weight:700;margin-bottom:8px}
+  .info-card p{font-size:13px;color:#666;line-height:1.6}
+  .uploaded-file{background:#E1F5EE;border:2px solid #5DCAA5;border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:12px;margin-top:16px}
+  .cart-layout{display:grid;grid-template-columns:1fr 380px;gap:28px;align-items:start}
+  .cart-item{background:#fff;border-radius:14px;padding:18px;display:flex;align-items:center;gap:16px;margin-bottom:12px;border:1px solid #e8e8e8}
+  .cart-icon{font-size:32px;background:#E1F5EE;border-radius:10px;width:56px;height:56px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .cart-name{font-size:15px;font-weight:700;margin-bottom:4px}
+  .cart-sub{font-size:12px;color:#888}
+  .cart-price{font-size:16px;font-weight:700;color:#0F6E56;margin-left:auto;text-align:right}
+  .remove-btn{background:none;border:1px solid #fcc;color:#E24B4A;border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer;margin-top:6px}
+  .order-summary{background:#fff;border-radius:16px;padding:24px;border:1px solid #e8e8e8;position:sticky;top:80px}
+  .summary-row{display:flex;justify-content:space-between;font-size:14px;color:#666;padding:6px 0}
+  .summary-total{display:flex;justify-content:space-between;font-size:18px;font-weight:700;border-top:2px solid #eee;padding-top:14px;margin-top:8px}
+  .address-card{background:#E1F5EE;border:2px solid #5DCAA5;border-radius:12px;padding:14px 16px;margin:14px 0;font-size:13px}
+  .confirm-center{max-width:560px;margin:0 auto;text-align:center}
+  .success-circle{width:100px;height:100px;border-radius:50%;background:#E1F5EE;display:flex;align-items:center;justify-content:center;font-size:52px;margin:0 auto 20px}
+  .order-id-box{background:#f5f5f5;border-radius:12px;padding:16px;margin:20px 0;display:inline-block;min-width:240px}
+  .eta-card{background:#0F6E56;color:#fff;border-radius:14px;padding:20px;margin:20px 0}
+  .track-layout{display:grid;grid-template-columns:1fr 340px;gap:28px}
+  .map-box{background:#E1F5EE;border-radius:18px;height:260px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;border:2px dashed #5DCAA5;margin-bottom:20px;font-size:15px;color:#0F6E56}
+  .rider-card{background:#fff;border-radius:14px;padding:18px;display:flex;align-items:center;gap:14px;border:1px solid #e8e8e8;margin-bottom:20px}
+  .rider-avatar{width:52px;height:52px;border-radius:50%;background:#9FE1CB;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+  .call-btn{width:40px;height:40px;border-radius:50%;background:#E1F5EE;border:none;font-size:18px;cursor:pointer;margin-left:auto}
+  .track-step{display:flex;gap:14px;align-items:flex-start;margin-bottom:0}
+  .dot-col{display:flex;flex-direction:column;align-items:center}
+  .dot{width:22px;height:22px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
+  .dot.done{background:#0F6E56}
+  .dot.active{background:#0F6E56;box-shadow:0 0 0 5px #E1F5EE}
+  .dot.pending{background:#ccc}
+  .vline{width:3px;min-height:36px;flex:1}
+  .vline.done{background:#0F6E56}
+  .vline.pending{background:#ddd}
+  .step-label{font-size:15px;font-weight:700;margin-bottom:3px}
+  .step-time{font-size:12px;color:#888}
+  .step-note{font-size:12px;background:#E1F5EE;color:#0F6E56;border-radius:6px;padding:3px 10px;display:inline-block;margin-top:5px}
+  .step-content{padding-bottom:28px}
+  footer{background:#085041;color:rgba(255,255,255,.7);text-align:center;padding:20px;font-size:13px;margin-top:48px}
+  footer span{color:#9FE1CB;font-weight:700}
+  @media(max-width:768px){
+    .detail-layout,.rx-layout,.cart-layout,.track-layout{grid-template-columns:1fr}
+    .categories-grid{grid-template-columns:repeat(3,1fr)}
+    .hero{flex-direction:column;text-align:center}.hero-icon{display:none}
+    nav{padding:0 16px}.nav-links{display:none}
+    .page{padding:16px}
+    .sidebar{width:100%;right:-100%}
+  }
+  .sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;opacity:0;pointer-events:none;transition:opacity .3s}
+  .sidebar-overlay.open{opacity:1;pointer-events:all}
+  .sidebar{position:fixed;top:0;right:-400px;width:360px;height:100vh;background:#fff;z-index:201;transition:right .3s cubic-bezier(.4,0,.2,1);overflow-y:auto;display:flex;flex-direction:column;box-shadow:-4px 0 24px rgba(0,0,0,.12)}
+  .sidebar.open{right:0}
+  .sidebar-header{background:#0F6E56;color:#fff;padding:24px 24px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+  .sidebar-header h2{font-size:20px;font-weight:700}
+  .close-btn{background:rgba(255,255,255,.2);border:none;color:#fff;width:34px;height:34px;border-radius:50%;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
+  .auth-tabs{display:flex;border-bottom:2px solid #f0f0f0;flex-shrink:0}
+  .auth-tab{flex:1;padding:14px;text-align:center;font-size:15px;font-weight:700;cursor:pointer;color:#aaa;border-bottom:3px solid transparent;transition:all .15s;margin-bottom:-2px}
+  .auth-tab.active{color:#0F6E56;border-bottom-color:#0F6E56}
+  .auth-form{padding:24px;flex:1}
+  .auth-panel{display:none}.auth-panel.active{display:block}
+  .form-group{margin-bottom:18px}
+  .form-group label{display:block;font-size:13px;font-weight:700;color:#444;margin-bottom:6px}
+  .form-group input{width:100%;padding:11px 14px;border:1.5px solid #ddd;border-radius:10px;font-size:14px;outline:none;transition:border .15s;background:#fff;color:#222}
+  .form-group input:focus{border-color:#0F6E56}
+  .form-group .hint{font-size:11px;color:#aaa;margin-top:4px}
+  .auth-btn{background:#0F6E56;color:#fff;border:none;border-radius:12px;padding:13px;width:100%;font-size:15px;font-weight:700;cursor:pointer;margin-top:4px}
+  .auth-btn:hover{background:#085041}
+  .divider{display:flex;align-items:center;gap:10px;margin:18px 0;color:#aaa;font-size:12px}
+  .divider::before,.divider::after{content:'';flex:1;height:1px;background:#eee}
+  .google-btn{background:#fff;color:#333;border:1.5px solid #ddd;border-radius:12px;padding:12px;width:100%;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+  .google-btn:hover{background:#f5f5f5}
+  .switch-text{text-align:center;font-size:13px;color:#888;margin-top:20px}
+  .switch-text a{color:#0F6E56;font-weight:700;cursor:pointer;text-decoration:none}
+  .error-msg{background:#fff0f0;border:1px solid #fcc;border-radius:8px;padding:10px 14px;font-size:13px;color:#c00;margin-bottom:14px;display:none}
+  .success-msg{background:#E1F5EE;border:1px solid #5DCAA5;border-radius:8px;padding:10px 14px;font-size:13px;color:#0F6E56;margin-bottom:14px;display:none}
+  .user-panel{padding:24px}
+  .user-avatar-big{width:72px;height:72px;border-radius:50%;background:#E1F5EE;display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 12px}
+  .user-name-big{font-size:18px;font-weight:700;text-align:center;margin-bottom:4px}
+  .user-email-big{font-size:13px;color:#888;text-align:center;margin-bottom:24px}
+  .user-menu-item{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:12px;cursor:pointer;margin-bottom:6px;font-size:14px;font-weight:600;color:#333;transition:background .15s}
+  .user-menu-item:hover{background:#f0f7f4}
+  .user-menu-icon{font-size:20px;width:28px;text-align:center}
+  .logout-btn{background:#fff;color:#E24B4A;border:1.5px solid #fcc;border-radius:12px;padding:12px;width:100%;font-size:14px;font-weight:700;cursor:pointer;margin-top:16px}
+  .logout-btn:hover{background:#fff5f5}
+  .nav-login-btn{background:rgba(255,255,255,.15);color:#fff;border:1.5px solid rgba(255,255,255,.4);border-radius:20px;padding:7px 16px;font-size:14px;font-weight:600;cursor:pointer;margin-right:8px}
+  .nav-login-btn:hover{background:rgba(255,255,255,.25)}
+  .nav-user-btn{background:rgba(255,255,255,.15);color:#fff;border:1.5px solid rgba(255,255,255,.4);border-radius:20px;padding:6px 14px;font-size:13px;font-weight:600;cursor:pointer;margin-right:8px;display:none;align-items:center;gap:7px}
+  .nav-avatar{width:26px;height:26px;border-radius:50%;background:#9FE1CB;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#085041}
+  .strength-bar{height:4px;border-radius:4px;margin-top:6px;background:#eee;overflow:hidden}
+  .strength-fill{height:100%;border-radius:4px;width:0;transition:width .3s,background .3s}
+  /* Order tracking live styles */
+  .live-badge{display:inline-flex;align-items:center;gap:6px;background:#E1F5EE;color:#0F6E56;border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;margin-bottom:12px}
+  .live-dot{width:8px;height:8px;border-radius:50%;background:#0F6E56;animation:pulse 1.5s ease infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+  /* My Orders tab */
+  .order-history-item{background:#fff;border-radius:14px;padding:18px;margin-bottom:12px;border:1px solid #e8e8e8;display:flex;align-items:center;justify-content:space-between;gap:16px;cursor:pointer;transition:all .15s}
+  .order-history-item:hover{border-color:#0F6E56;box-shadow:0 2px 12px rgba(15,110,86,.1)}
+  .order-status-pill{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600}
+  .order-status-pill.pending{background:#f5f5f5;color:#888}
+  .order-status-pill.accepted{background:#CCE5FF;color:#004085}
+  .order-status-pill.picked_up{background:#e0d4ff;color:#4c0099}
+  .order-status-pill.on_the_way{background:#FFF3CD;color:#856404}
+  .order-status-pill.delivered{background:#E1F5EE;color:#085041}
+  .order-status-pill.cancelled{background:#FFF0F0;color:#c00}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo" onclick="showPage('home')">💊 Pharma<span>Fast</span></div>
+  <div class="nav-links">
+    <a onclick="showPage('home')">Home</a>
+    <a onclick="showPage('medicines')">Medicines</a>
+    <a onclick="showPage('prescription')">Upload Rx</a>
+    <a onclick="showPage('orders')">My Orders</a>
+  </div>
+  <div style="display:flex;align-items:center">
+    <button class="nav-login-btn" id="nav-login-btn" onclick="openSidebar('login')">Login / Sign Up</button>
+    <button class="nav-user-btn" id="nav-user-btn" onclick="openSidebar('profile')">
+      <div class="nav-avatar" id="nav-avatar">A</div>
+      <span id="nav-username">User</span>
+    </button>
+    <button class="nav-cart-btn" onclick="showPage('cart')">
+      🛒 Cart <span class="cart-count" id="cart-count">0</span>
+    </button>
+  </div>
+</nav>
+
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<div class="sidebar" id="sidebar">
+  <div id="auth-section">
+    <div class="sidebar-header">
+      <h2 id="sidebar-title">Welcome Back 👋</h2>
+      <button class="close-btn" onclick="closeSidebar()">✕</button>
+    </div>
+    <div class="auth-tabs">
+      <div class="auth-tab active" id="tab-login" onclick="switchTab('login')">Login</div>
+      <div class="auth-tab" id="tab-signup" onclick="switchTab('signup')">Sign Up</div>
+    </div>
+    <div class="auth-form">
+      <div class="auth-panel active" id="panel-login">
+        <div class="error-msg" id="login-error">Invalid email or password.</div>
+        <div class="success-msg" id="login-success">Login successful! Welcome back.</div>
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="login-email" placeholder="customer@demo.com">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="login-password" placeholder="Enter your password">
+          <div class="hint">Demo: customer@demo.com / demo123</div>
+        </div>
+        <button class="auth-btn" onclick="doLogin()">Login to Pharma Fast</button>
+        <div class="switch-text">Don't have an account? <a onclick="switchTab('signup')">Sign up free</a></div>
+      </div>
+      <div class="auth-panel" id="panel-signup">
+        <div class="error-msg" id="signup-error">Please fill all fields correctly.</div>
+        <div class="success-msg" id="signup-success">Account created! You are now logged in.</div>
+        <div class="form-group"><label>Full Name</label><input type="text" id="signup-name" placeholder="Your full name"></div>
+        <div class="form-group"><label>Phone Number</label><input type="tel" id="signup-phone" placeholder="+91 98765 43210"></div>
+        <div class="form-group"><label>Email Address</label><input type="email" id="signup-email" placeholder="you@example.com"></div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="signup-password" placeholder="Create a strong password" oninput="checkStrength(this.value)">
+          <div class="strength-bar"><div class="strength-fill" id="strength-fill"></div></div>
+          <div class="hint" id="strength-label">Enter a password</div>
+        </div>
+        <div class="form-group"><label>Delivery Address</label><input type="text" id="signup-address" placeholder="House no, Street, Pampady"></div>
+        <button class="auth-btn" onclick="doSignup()">Create Account</button>
+        <div class="switch-text">Already have an account? <a onclick="switchTab('login')">Login</a></div>
+      </div>
+    </div>
+  </div>
+  <div id="profile-section" style="display:none;flex-direction:column;height:100%">
+    <div class="sidebar-header"><h2>My Account</h2><button class="close-btn" onclick="closeSidebar()">✕</button></div>
+    <div class="user-panel">
+      <div class="user-avatar-big" id="profile-avatar">👤</div>
+      <div class="user-name-big" id="profile-name">User Name</div>
+      <div class="user-email-big" id="profile-email">user@example.com</div>
+      <div style="border-top:1px solid #f0f0f0;padding-top:16px">
+        <div class="user-menu-item" onclick="showPage('orders');closeSidebar()"><span class="user-menu-icon">📦</span> My Orders</div>
+        <div class="user-menu-item" onclick="showPage('prescription');closeSidebar()"><span class="user-menu-icon">📋</span> My Prescriptions</div>
+        <div class="user-menu-item" onclick="closeSidebar()"><span class="user-menu-icon">❤️</span> Wishlist</div>
+        <div class="user-menu-item" onclick="closeSidebar()"><span class="user-menu-icon">💳</span> Payment Methods</div>
+        <div class="user-menu-item" onclick="closeSidebar()"><span class="user-menu-icon">🔔</span> Notifications</div>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">Logout</button>
+    </div>
+  </div>
+</div>
+
+<!-- HOME -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <div>
+      <h1>Medicine, Delivered Fast 🚀</h1>
+      <p>Order prescription and OTC medicines from trusted pharmacies in Pampady. Delivered in 45–60 minutes.</p>
+      <button class="hero-btn" onclick="showPage('medicines')">Order Now</button>
+    </div>
+    <div class="hero-icon">💊</div>
+  </div>
+  <div class="emergency-banner" onclick="showPage('medicines')">
+    <span style="font-size:32px">🚑</span>
+    <div>
+      <div style="font-size:16px;font-weight:700;color:#633806">Emergency Delivery — Get medicines in 30 minutes</div>
+      <div style="font-size:13px;color:#854F0B">Available 24/7 · Extra charges apply</div>
+    </div>
+    <span style="margin-left:auto;font-size:22px;color:#854F0B">›</span>
+  </div>
+  <p class="section-title">Browse Categories</p>
+  <div class="categories-grid">
+    <div class="cat-card" onclick="showPage('medicines')"><div class="cat-icon">🤒</div><div class="cat-label">Fever</div></div>
+    <div class="cat-card" onclick="showPage('medicines')"><div class="cat-icon">🤧</div><div class="cat-label">Cold & Flu</div></div>
+    <div class="cat-card" onclick="showPage('medicines')"><div class="cat-icon">💊</div><div class="cat-label">Vitamins</div></div>
+    <div class="cat-card" onclick="showPage('medicines')"><div class="cat-icon">🩹</div><div class="cat-label">First Aid</div></div>
+    <div class="cat-card" onclick="showPage('medicines')"><div class="cat-icon">💉</div><div class="cat-label">Diabetes</div></div>
+    <div class="cat-card" onclick="showPage('prescription')"><div class="cat-icon">📋</div><div class="cat-label">Upload Rx</div></div>
+  </div>
+  <p class="section-title">Popular Medicines</p>
+  <div class="medicines-grid" id="home-medicines"></div>
+</div>
+
+<!-- MEDICINES -->
+<div class="page" id="page-medicines">
+  <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px">
+    <button onclick="showPage('home')" style="background:none;border:1px solid #ccc;border-radius:8px;padding:8px 14px;cursor:pointer;font-size:14px">‹ Back</button>
+    <h2 style="font-size:22px;font-weight:700">All Medicines</h2>
+  </div>
+  <div style="background:#fff;border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:10px;margin-bottom:24px;border:1px solid #ddd">
+    <span style="font-size:18px">🔍</span>
+    <input type="text" placeholder="Search medicines, brands, categories..." style="border:none;outline:none;font-size:15px;flex:1;background:transparent" oninput="filterMeds(this.value)">
+  </div>
+  <div class="medicines-grid" id="all-medicines"></div>
+</div>
+
+<!-- DETAIL -->
+<div class="page" id="page-detail">
+  <button onclick="showPage('medicines')" style="background:none;border:1px solid #ccc;border-radius:8px;padding:8px 14px;cursor:pointer;font-size:14px;margin-bottom:24px">‹ Back to Medicines</button>
+  <div class="detail-layout">
+    <div><div class="detail-img" id="detail-icon">💊</div></div>
+    <div>
+      <h1 id="detail-name">Medicine Name</h1>
+      <p class="detail-sub" id="detail-sub">Details</p>
+      <div id="detail-rx" style="display:none" class="rx-tag">📋 Prescription Required</div>
+      <div class="detail-price" id="detail-price">₹0</div>
+      <div class="detail-row"><span style="color:#888">Manufacturer</span><span id="detail-mfr">—</span></div>
+      <div class="detail-row"><span style="color:#888">Category</span><span id="detail-cat">—</span></div>
+      <div class="detail-row"><span style="color:#888">Stock</span><span style="color:#0F6E56">In Stock ✓</span></div>
+      <div class="detail-row"><span style="color:#888">Delivery</span><span>45–60 mins</span></div>
+      <div style="margin-top:18px">
+        <p style="font-size:14px;font-weight:600;margin-bottom:8px">Quantity</p>
+        <div class="qty-row">
+          <button class="qty-btn" onclick="changeDetailQty(-1)">−</button>
+          <span class="qty-val" id="detail-qty">1</span>
+          <button class="qty-btn" onclick="changeDetailQty(1)">+</button>
+          <span style="font-size:13px;color:#888">unit(s)</span>
+        </div>
+      </div>
+      <button class="big-btn" id="detail-add-btn" onclick="addDetailToCart()">Add to Cart</button>
+      <button class="big-btn secondary" onclick="showPage('prescription')" style="margin-top:10px">Upload Prescription</button>
+    </div>
+  </div>
+</div>
+
+<!-- PRESCRIPTION -->
+<div class="page" id="page-prescription">
+  <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px">
+    <button onclick="showPage('home')" style="background:none;border:1px solid #ccc;border-radius:8px;padding:8px 14px;cursor:pointer;font-size:14px">‹ Back</button>
+    <h2 style="font-size:22px;font-weight:700">Upload Prescription</h2>
+  </div>
+  <div class="rx-layout">
+    <div>
+      <div class="upload-box" id="upload-box" onclick="triggerRxUpload()">
+        <div style="font-size:52px;margin-bottom:12px" id="upload-icon">📷</div>
+        <h3 style="font-size:18px;color:#0F6E56;margin-bottom:6px" id="upload-title">Upload Your Prescription</h3>
+        <p style="font-size:13px;color:#555" id="upload-sub">Click to select a JPG, PNG, or PDF file<br>Max size: 5 MB</p>
+      </div>
+      <input type="file" id="rx-file-input" style="display:none" accept=".jpg,.jpeg,.png,.webp,.pdf" onchange="handleRxFileSelection(this)">
+      <div id="rx-uploaded" style="display:none">
+        <div class="uploaded-file">
+          <span style="font-size:28px">📄</span>
+          <div><div style="font-size:14px;font-weight:700" id="rx-filename-display">prescription_doc.jpg</div><div style="font-size:12px;color:#666" id="rx-filesize-display">Uploaded · 248 KB</div></div>
+          <span style="color:#0F6E56;font-size:22px;margin-left:auto">✓</span>
+        </div>
+        <div style="background:#E1F5EE;border-radius:10px;padding:12px 16px;font-size:13px;color:#0F6E56;margin-top:12px;font-weight:600">✓ Your prescription has been uploaded and linked to your account.</div>
+        <button class="big-btn" onclick="showPage('cart')" style="margin-top:16px">Proceed to Cart →</button>
+        <button class="remove-btn" onclick="resetRxUpload()" style="margin-top:8px; border-color:transparent; background:#fff">Change Prescription</button>
+      </div>
+    </div>
+    <div>
+      <div class="info-card"><h3>📌 Why is a prescription needed?</h3><p>As per Indian law, certain medicines require a valid doctor's prescription before dispensing.</p></div>
+      <div class="info-card"><h3>✅ Accepted formats</h3><p>JPG, PNG, PDF — Written or printed prescriptions from any registered medical practitioner. Max validity: 6 months.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- CART -->
+<div class="page" id="page-cart">
+  <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px">
+    <button onclick="showPage('medicines')" style="background:none;border:1px solid #ccc;border-radius:8px;padding:8px 14px;cursor:pointer;font-size:14px">‹ Continue Shopping</button>
+    <h2 style="font-size:22px;font-weight:700">My Cart</h2>
+  </div>
+  <div class="cart-layout">
+    <div>
+      <div id="cart-items-container"></div>
+      <div id="empty-cart" style="display:none;text-align:center;padding:48px 20px;background:#fff;border-radius:14px;border:1px solid #eee">
+        <div style="font-size:52px;margin-bottom:12px">🛒</div>
+        <h3 style="font-size:18px;color:#888;margin-bottom:8px">Your cart is empty</h3>
+        <button class="big-btn" onclick="showPage('medicines')" style="width:auto;padding:12px 28px">Browse Medicines</button>
+      </div>
+    </div>
+    <div>
+      <div class="order-summary">
+        <h3 style="font-size:17px;font-weight:700;margin-bottom:16px">Order Summary</h3>
+        <div class="summary-row"><span>Subtotal</span><span id="summary-subtotal">₹0</span></div>
+        <div class="summary-row"><span>Delivery fee</span><span style="color:#0F6E56">FREE</span></div>
+        <div class="summary-row"><span>Platform fee</span><span>₹5</span></div>
+        <div class="summary-total"><span>Total</span><span style="color:#0F6E56" id="summary-total">₹5</span></div>
+        <div style="margin-top:16px; border-top:1px solid #eee; padding-top:16px;">
+          <p style="font-size:14px;font-weight:700;margin-bottom:10px">Payment Mode</p>
+          <div style="display:flex;gap:12px">
+            <label style="flex:1;cursor:pointer;background:#f5f5f5;padding:10px;border-radius:10px;text-align:center;font-size:13px;border:2px solid transparent;" id="pay-cod-label">
+              <input type="radio" name="payment-mode" value="Cash on Delivery" checked style="display:none" onchange="updatePayUI()">
+              💵 COD
+            </label>
+            <label style="flex:1;cursor:pointer;background:#f5f5f5;padding:10px;border-radius:10px;text-align:center;font-size:13px;border:2px solid transparent;" id="pay-online-label">
+              <input type="radio" name="payment-mode" value="Online Payment" style="display:none" onchange="updatePayUI()">
+              💳 Online
+            </label>
+          </div>
+        </div>
+        <div class="address-card" id="cart-address-card">
+          <div style="font-weight:700;margin-bottom:4px">🏠 Home</div>
+          <div style="color:#555">Please login to see your delivery address</div>
+        </div>
+        <div style="background:#E1F5EE;border-radius:8px;padding:10px 12px;font-size:13px;color:#0F6E56;margin-bottom:14px">⏱ Estimated delivery: 45–60 minutes</div>
+        <button class="big-btn" onclick="placeOrder()" id="place-order-btn">Place Order →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRMATION -->
+<div class="page" id="page-confirm">
+  <div class="confirm-center">
+    <div class="success-circle">✅</div>
+    <h1 style="font-size:28px;font-weight:700;color:#0F6E56;margin-bottom:8px">Order Placed Successfully!</h1>
+    <p style="font-size:15px;color:#888;margin-bottom:20px">Your medicines are being prepared by MedPlus Pharmacy, Pampady</p>
+    <div class="order-id-box">
+      <div style="font-size:12px;color:#888;margin-bottom:4px">Order ID</div>
+      <div style="font-size:22px;font-weight:700;color:#0F6E56;letter-spacing:1px" id="confirm-order-id">PF-0000</div>
+    </div>
+    <div class="eta-card">
+      <div style="font-size:13px;opacity:.8;margin-bottom:4px">Estimated Arrival</div>
+      <div style="font-size:36px;font-weight:700">45 min</div>
+    </div>
+    <div id="confirm-items" style="background:#fff;border-radius:14px;padding:20px;border:1px solid #eee;margin-bottom:20px;text-align:left"></div>
+    <div style="display:flex;gap:12px">
+      <button class="big-btn" onclick="showPage('tracking')">Track My Order →</button>
+      <button class="big-btn secondary" onclick="showPage('home')">Back to Home</button>
+    </div>
+  </div>
+</div>
+
+<!-- TRACKING -->
+<div class="page" id="page-tracking">
+  <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px">
+    <button onclick="showPage('orders')" style="background:none;border:1px solid #ccc;border-radius:8px;padding:8px 14px;cursor:pointer;font-size:14px">‹ Back</button>
+    <div>
+      <h2 style="font-size:22px;font-weight:700" id="track-order-title">Track Order</h2>
+      <p style="font-size:13px;color:#888">Live order tracking</p>
+    </div>
+    <div class="live-badge" id="live-badge" style="margin-left:auto"><div class="live-dot"></div>Live Tracking</div>
+  </div>
+  <div class="track-layout">
+    <div>
+      <div class="map-box" id="tracking-visual-hub" style="display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:20px;">
+        <div id="track-progress-bar" style="width: 80%; height: 10px; background: #eee; border-radius: 5px; margin-bottom: 20px; position:relative; overflow:hidden;">
+            <div id="track-progress-fill" style="width: 20%; height:100%; background: #0F6E56; transition: width 0.5s ease;"></div>
+        </div>
+        <div style="font-size:48px; margin-bottom: 10px;" id="track-main-icon">📦</div>
+        <div style="font-weight:700; font-size:18px; color:#0F6E56;" id="track-main-status">Preparing Your Order</div>
+        <div style="font-size:13px; color:#555; margin-top:5px;" id="track-sub-status">Your medicines are being packed at the pharmacy</div>
+      </div>
+      <div class="rider-card" id="rider-card" style="display:none">
+        <div class="rider-avatar">🛵</div>
+        <div>
+          <div style="font-size:15px;font-weight:700" id="rider-name-track">Rider</div>
+          <div style="font-size:12px;color:#888">Delivery Rider · ⭐ 4.9</div>
+        </div>
+        <button class="call-btn" id="rider-call-btn" style="margin-left:auto">📞</button>
+      </div>
+    </div>
+    <div>
+      <h3 style="font-size:16px;font-weight:700;margin-bottom:20px">Order Status</h3>
+      <div id="tracking-steps"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MY ORDERS -->
+<div class="page" id="page-orders">
+  <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px">
+    <button onclick="showPage('home')" style="background:none;border:1px solid #ccc;border-radius:8px;padding:8px 14px;cursor:pointer;font-size:14px">‹ Back</button>
+    <h2 style="font-size:22px;font-weight:700">My Orders</h2>
+  </div>
+  <div id="orders-list">
+    <div style="text-align:center;padding:48px;color:#888">
+      <div style="font-size:48px;margin-bottom:12px">📦</div>
+      <p>Login to see your orders</p>
+    </div>
+  </div>
+</div>
+
+<footer>© 2026 <span>Pharma Fast</span> · Medicine Delivery · Pampady, Kerala · Available 24/7</footer>
+
+<script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+<script>
+// ── Config ──────────────────────────────────────────────────────────────────
+const API = window.location.origin + '/api';
+let token = localStorage.getItem('pf_customer_token');
+let currentUser = null;
+let socket = null;
+let currentOrderId = null;
+let trackingInterval = null;
+
+const medicines = [
+  {id:1,name:"Paracetamol 500mg",sub:"Strip of 10 tablets",price:12,icon:"💊",mfr:"Cipla Ltd.",cat:"Fever",rx:false},
+  {id:2,name:"Azithromycin 500mg",sub:"Strip of 3 tablets",price:145,icon:"💊",mfr:"Sun Pharma",cat:"Antibiotic",rx:true},
+  {id:3,name:"Cough Syrup",sub:"100ml bottle",price:85,icon:"🧴",mfr:"Dabur",cat:"Cold & Flu",rx:false},
+  {id:4,name:"Vitamin C 1000mg",sub:"Strip of 10 tablets",price:55,icon:"🍋",mfr:"HealthVit",cat:"Vitamins",rx:false},
+  {id:5,name:"Metformin 500mg",sub:"Strip of 10 tablets",price:32,icon:"💉",mfr:"USV Ltd.",cat:"Diabetes",rx:true},
+  {id:6,name:"Dolo 650",sub:"Strip of 15 tablets",price:28,icon:"💊",mfr:"Micro Labs",cat:"Fever",rx:false},
+  {id:7,name:"Cetirizine 10mg",sub:"Strip of 10 tablets",price:18,icon:"🤧",mfr:"Cipla",cat:"Allergy",rx:false},
+  {id:8,name:"Bandage Roll",sub:"Pack of 2 rolls",price:40,icon:"🩹",mfr:"Johnson & Johnson",cat:"First Aid",rx:false},
+];
+
+let cart = [];
+let currentMed = null;
+let detailQty = 1;
+let uploadedRxFilename = null;
+
+// ── API Helper ───────────────────────────────────────────────────────────────
+async function api(method, path, body) {
+  const opts = { method, headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': 'Bearer ' + token } : {}) } };
+  if (body) opts.body = JSON.stringify(body);
+  try {
+    const res = await fetch(API + path, opts);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Request failed');
+    return data;
+  } catch(e) {
+    if (e.message.includes('fetch')) throw new Error('Cannot connect to server. Make sure server is running on port 3000.');
+    throw e;
+  }
+}
+
+// ── Page Navigation ──────────────────────────────────────────────────────────
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  window.scrollTo(0,0);
+  if (name === 'home') renderHomeMeds();
+  if (name === 'medicines') renderAllMeds(medicines);
+  if (name === 'cart') { renderCart(); updateCartAddress(); }
+  if (name === 'confirm') renderConfirm();
+  if (name === 'orders') loadMyOrders();
+  if (name === 'tracking') startTracking();
+}
+
+// ── Medicine Rendering ───────────────────────────────────────────────────────
+function renderMedCard(m, container) {
+  const inCart = cart.find(c => c.id === m.id);
+  const div = document.createElement('div');
+  div.className = 'med-card';
+  div.innerHTML = `<div class="med-card-icon">${m.icon}</div><h3>${m.name}</h3><p class="sub">${m.sub}</p>${m.rx?'<span class="rx-tag">📋 Rx Required</span>':''}<div class="price">₹${m.price}</div><button class="add-to-cart-btn ${inCart?'added':''}" id="btn-${m.id}" onclick="event.stopPropagation();quickAdd(${m.id})">${inCart?'✓ Added':'+ Add to Cart'}</button>`;
+  div.onclick = () => openDetail(m);
+  container.appendChild(div);
+}
+
+function renderHomeMeds() { const c = document.getElementById('home-medicines'); c.innerHTML=''; medicines.slice(0,4).forEach(m => renderMedCard(m, c)); }
+function renderAllMeds(list) {
+  const c = document.getElementById('all-medicines'); c.innerHTML='';
+  if(!list.length) { c.innerHTML='<p style="color:#888;grid-column:1/-1;text-align:center;padding:32px">No medicines found.</p>'; return; }
+  list.forEach(m => renderMedCard(m, c));
+}
+function filterMeds(q) { renderAllMeds(medicines.filter(m => m.name.toLowerCase().includes(q.toLowerCase()) || m.cat.toLowerCase().includes(q.toLowerCase()))); }
+
+function openDetail(m) {
+  currentMed = m; detailQty = 1;
+  document.getElementById('detail-icon').textContent = m.icon;
+  document.getElementById('detail-name').textContent = m.name;
+  document.getElementById('detail-sub').textContent = m.sub;
+  document.getElementById('detail-price').textContent = '₹' + m.price;
+  document.getElementById('detail-mfr').textContent = m.mfr;
+  document.getElementById('detail-cat').textContent = m.cat;
+  document.getElementById('detail-qty').textContent = 1;
+  document.getElementById('detail-rx').style.display = m.rx ? 'inline-block' : 'none';
+  const btn = document.getElementById('detail-add-btn');
+  const inCart = cart.find(c => c.id === m.id);
+  btn.textContent = inCart ? '✓ Already in Cart' : 'Add to Cart';
+  btn.style.background = inCart ? '#1D9E75' : '#0F6E56';
+  showPage('detail');
+}
+
+function changeDetailQty(d) { detailQty = Math.max(1, Math.min(20, detailQty + d)); document.getElementById('detail-qty').textContent = detailQty; }
+function addDetailToCart() {
+  if(!currentMed) return;
+  const ex = cart.find(c=>c.id===currentMed.id);
+  if(ex) ex.qty += detailQty; else cart.push({...currentMed, qty:detailQty});
+  updateCartCount();
+  document.getElementById('detail-add-btn').textContent = '✓ Added to Cart';
+  document.getElementById('detail-add-btn').style.background = '#1D9E75';
+}
+function quickAdd(id) {
+  const m = medicines.find(x=>x.id===id); const ex = cart.find(c=>c.id===id);
+  if(ex) ex.qty++; else cart.push({...m,qty:1});
+  updateCartCount();
+  const b = document.getElementById('btn-'+id); if(b){b.textContent='✓ Added';b.classList.add('added');}
+}
+function updateCartCount() { document.getElementById('cart-count').textContent = cart.reduce((s,c)=>s+c.qty,0); }
+
+function renderCart() {
+  const container = document.getElementById('cart-items-container');
+  const empty = document.getElementById('empty-cart');
+  container.innerHTML = '';
+  if(!cart.length) { empty.style.display='block'; document.getElementById('summary-subtotal').textContent='₹0'; document.getElementById('summary-total').textContent='₹5'; return; }
+  empty.style.display='none';
+  let subtotal = 0;
+  cart.forEach(item => {
+    subtotal += item.price * item.qty;
+    const div = document.createElement('div'); div.className='cart-item';
+    div.innerHTML=`<div class="cart-icon">${item.icon}</div><div style="flex:1"><div class="cart-name">${item.name}</div><div class="cart-sub">${item.sub}${item.rx?' · 📋 Rx Required':''}</div><div style="display:flex;align-items:center;gap:10px;margin-top:8px"><button style="width:28px;height:28px;border-radius:50%;border:1.5px solid #0F6E56;background:#fff;color:#0F6E56;font-size:16px;cursor:pointer;font-weight:700" onclick="updateQty(${item.id},-1)">−</button><span style="font-size:14px;font-weight:700">${item.qty}</span><button style="width:28px;height:28px;border-radius:50%;border:1.5px solid #0F6E56;background:#fff;color:#0F6E56;font-size:16px;cursor:pointer;font-weight:700" onclick="updateQty(${item.id},1)">+</button></div><button class="remove-btn" onclick="removeItem(${item.id})">Remove</button></div><div class="cart-price">₹${item.price*item.qty}<br><span style="font-size:11px;color:#aaa;font-weight:400">₹${item.price} each</span></div>`;
+    container.appendChild(div);
+  });
+  document.getElementById('summary-subtotal').textContent = '₹'+subtotal;
+  document.getElementById('summary-total').textContent = '₹'+(subtotal+5);
+}
+
+function updateCartAddress() {
+  const card = document.getElementById('cart-address-card');
+  if(currentUser && currentUser.address) {
+    card.innerHTML = `<div style="font-weight:700;margin-bottom:4px">🏠 ${currentUser.name}</div><div style="color:#555">${currentUser.address}</div>`;
+  } else {
+    card.innerHTML = `<div style="font-weight:700;margin-bottom:4px">🏠 Delivery Address</div><div style="color:#555">${currentUser ? 'No address on file' : 'Please login to continue'}</div>`;
+  }
+}
+
+function updatePayUI() {
+  const cod = document.querySelector('input[value="Cash on Delivery"]').checked;
+  document.getElementById('pay-cod-label').style.borderColor = cod ? '#0F6E56' : 'transparent';
+  document.getElementById('pay-cod-label').style.background = cod ? '#E1F5EE' : '#f5f5f5';
+  document.getElementById('pay-online-label').style.borderColor = !cod ? '#0F6E56' : 'transparent';
+  document.getElementById('pay-online-label').style.background = !cod ? '#E1F5EE' : '#f5f5f5';
+}
+updatePayUI();
+
+function updateQty(id,d) { const item=cart.find(c=>c.id===id); if(!item)return; item.qty=Math.max(1,item.qty+d); updateCartCount(); renderCart(); }
+function removeItem(id) { cart=cart.filter(c=>c.id!==id); updateCartCount(); renderCart(); }
+
+function renderConfirm(order) {
+  if(!order) return;
+  const c = document.getElementById('confirm-items');
+  let html='<div style="font-size:13px;color:#888;margin-bottom:10px">Items ordered</div>';
+  order.items.forEach(item => { html+=`<div style="display:flex;justify-content:space-between;font-size:14px;padding:5px 0;border-bottom:1px solid #f5f5f5"><span>${item.name} ×${item.qty}</span><span style="font-weight:600">₹${item.price*item.qty}</span></div>`; });
+  html+=`<div style="display:flex;justify-content:space-between;font-size:16px;font-weight:700;margin-top:12px"><span>Total Paid</span><span style="color:#0F6E56">₹${order.total}</span></div>`;
+  c.innerHTML=html;
+}
+
+// ── Place Order (API) ─────────────────────────────────────────────────────────
+async function placeOrder() {
+  if(!cart.length) { alert('Your cart is empty!'); return; }
+  if(!currentUser) { openSidebar('login'); return; }
+  const btn = document.getElementById('place-order-btn');
+  btn.textContent = 'Placing Order...'; btn.disabled = true;
+  try {
+    const subtotal = cart.reduce((s,i)=>s+i.price*i.qty,0);
+    const hasPrescription = cart.some(i=>i.rx);
+    const paymentMode = document.querySelector('input[name="payment-mode"]:checked').value;
+    const order = await api('POST', '/orders', {
+      items: cart.map(i=>({id:i.id,name:i.name,icon:i.icon,price:i.price,qty:i.qty})),
+      total: subtotal + 5,
+      address: currentUser.address || 'Pampady, Kerala',
+      prescriptionRequired: hasPrescription,
+      prescriptionPath: uploadedRxFilename,
+      paymentMode: paymentMode
+    });
+    currentOrderId = order.id;
+    document.getElementById('confirm-order-id').textContent = order.shortId || '#'+order.id.slice(0,8).toUpperCase();
+    renderConfirm(order);
+    cart = []; updateCartCount();
+    resetRxUpload(); // Clear prescription state for next order
+    showPage('confirm');
+    // Listen for status updates on this order
+    if(socket) {
+      socket.emit('join', { role:'customer', userId: currentUser.id });
+    }
+  } catch(e) {
+    alert('Order failed: ' + e.message);
+  } finally {
+    btn.textContent = 'Place Order →'; btn.disabled = false;
+  }
+}
+
+// ── Load My Orders ────────────────────────────────────────────────────────────
+async function loadMyOrders() {
+  const el = document.getElementById('orders-list');
+  if(!currentUser) { el.innerHTML='<div style="text-align:center;padding:48px;color:#888"><div style="font-size:48px;margin-bottom:12px">🔐</div><p>Please login to see your orders</p></div>'; return; }
+  el.innerHTML='<div style="text-align:center;padding:32px;color:#888">Loading...</div>';
+  try {
+    const orders = await api('GET', '/orders/my');
+    if(!orders.length) { el.innerHTML='<div style="text-align:center;padding:48px;color:#888"><div style="font-size:48px;margin-bottom:12px">📦</div><p>No orders yet. <a onclick="showPage(\'medicines\')" style="color:#0F6E56;cursor:pointer;font-weight:600">Shop now!</a></p></div>'; return; }
+    const statusIcon = {pending:'⏳',accepted:'✅',picked_up:'📦',on_the_way:'🛵',delivered:'🎉',cancelled:'❌'};
+    const statusLabel = {pending:'Pending',accepted:'Accepted',picked_up:'Picked Up',on_the_way:'On the Way',delivered:'Delivered',cancelled:'Cancelled'};
+    el.innerHTML = orders.map(o=>`
+      <div class="order-history-item" onclick="openTrackOrder('${o.id}')">
+        <div>
+          <div style="font-size:15px;font-weight:700;color:#0F6E56">${o.shortId||'#'+o.id.slice(0,8).toUpperCase()}</div>
+          <div style="font-size:12px;color:#888;margin-top:2px">${o.items.length} items · ${new Date(o.createdAt).toLocaleDateString('en-IN')}</div>
+          <div style="font-size:13px;color:#555;margin-top:4px">${o.items.map(i=>i.name).join(', ')}</div>
+          ${o.deliveryBoyName ? `<div style="font-size:12px;color:#888;margin-top:4px">🛵 Rider: ${o.deliveryBoyName}</div>` : ''}
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:18px;font-weight:700">₹${o.total}</div>
+          <div><span class="order-status-pill ${o.status}">${statusIcon[o.status]||'•'} ${statusLabel[o.status]||o.status}</span></div>
+          ${o.status !== 'delivered' ? '<div style="font-size:12px;color:#0F6E56;margin-top:6px;font-weight:600">Track →</div>' : ''}
+        </div>
+      </div>
+    `).join('');
+  } catch(e) { el.innerHTML='<div style="text-align:center;padding:32px;color:red">'+e.message+'</div>'; }
+}
+
+function openTrackOrder(orderId) {
+  currentOrderId = orderId;
+  showPage('tracking');
+}
+
+// ── Live Tracking ─────────────────────────────────────────────────────────────
+async function startTracking() {
+  if(!currentOrderId) {
+    document.getElementById('tracking-steps').innerHTML='<p style="color:#888;font-size:14px">No order selected. <a onclick="showPage(\'orders\')" style="color:#0F6E56;cursor:pointer;font-weight:600">View my orders</a></p>';
+    return;
+  }
+  await refreshTracking();
+  if(trackingInterval) clearInterval(trackingInterval);
+  trackingInterval = setInterval(refreshTracking, 8000);
+}
+
+async function refreshTracking() {
+  try {
+    const order = await api('GET', '/orders/' + currentOrderId);
+    renderTrackingUI(order);
+  } catch(e) {
+    document.getElementById('tracking-steps').innerHTML='<p style="color:red;font-size:14px">'+e.message+'</p>';
+  }
+}
+
+function renderTrackingUI(order) {
+  document.getElementById('track-order-title').textContent = 'Track ' + (order.shortId || '#'+order.id.slice(0,8).toUpperCase());
+
+  // Rider info
+  const riderCard = document.getElementById('rider-card');
+  if(order.deliveryBoyName) {
+    riderCard.style.display='flex';
+    document.getElementById('rider-name-track').textContent = order.deliveryBoyName;
+    if(order.deliveryBoyPhone) document.getElementById('rider-call-btn').onclick = ()=>window.location='tel:'+order.deliveryBoyPhone;
+  } else { riderCard.style.display='none'; }
+
+  const steps = [
+    {key:'pending', label:'Order Received', note:'Order confirmed'},
+    {key:'accepted', label:'Rider Assigned', note:'Rider heading to pharmacy'},
+    {key:'picked_up', label:'Medicines Packed & Picked Up', note:''},
+    {key:'on_the_way', label:'Out for Delivery', note:'Rider is on the way'},
+    {key:'delivered', label:'Delivered', note:'🎉 Enjoy your medicines!'},
+    {key:'cancelled', label:'Cancelled', note:'This order was cancelled'}
+  ];
+  const order_seq = ['pending','accepted','picked_up','on_the_way','delivered'];
+  const currentIdx = order_seq.indexOf(order.status);
+  const isCancelled = order.status === 'cancelled';
+
+  // Update Visual Hub
+  const visualIcon = document.getElementById('track-main-icon');
+  const visualStatus = document.getElementById('track-main-status');
+  const visualSub = document.getElementById('track-sub-status');
+  const visualFill = document.getElementById('track-progress-fill');
+
+  const statusMap = {
+    pending: { icon: '⏳', title: 'Order Received', sub: 'The pharmacy is reviewing your order', fill: '20%' },
+    accepted: { icon: '✅', title: 'Order Accepted', sub: 'A rider has been assigned and is heading to the pharmacy', fill: '40%' },
+    picked_up: { icon: '📦', title: 'Picked Up', sub: 'Your medicines have been picked up and are being double-checked', fill: '60%' },
+    on_the_way: { icon: '🛵', title: 'On the Way', sub: 'The rider is heading to your location now!', fill: '85%' },
+    delivered: { icon: '🎉', title: 'Delivered', sub: 'Order completed. Stay healthy!', fill: '100%' },
+    cancelled: { icon: '❌', title: 'Cancelled', sub: 'This order was cancelled', fill: '0%' }
+  };
+
+  const state = statusMap[order.status] || statusMap.pending;
+  if(visualIcon) visualIcon.textContent = state.icon;
+  if(visualStatus) visualStatus.textContent = state.title;
+  if(visualSub) visualSub.textContent = state.sub;
+  if(visualFill) visualFill.style.width = state.fill;
+
+  let html = '';
+  if (order.status === 'pending') {
+    html += `<button class="remove-btn" style="width:100%;padding:12px;margin-bottom:20px;font-weight:700" onclick="cancelOrder('${order.id}')">Cancel Order</button>`;
+  }
+  
+  if (isCancelled) {
+    html += `<div style="text-align:center;padding:20px;background:#FFF0F0;color:#c00;border-radius:12px;margin-bottom:20px;font-weight:700">This order has been cancelled.</div>`;
+  }
+  steps.forEach((step, i) => {
+    const done = i < currentIdx;
+    const active = i === currentIdx;
+    const ts = order.statusHistory?.find(h=>h.status===step.key);
+    const dotClass = done ? 'done' : (active ? 'active' : 'pending');
+    const lineClass = done ? 'done' : 'pending';
+    const isLast = i === steps.length-1;
+    const timeStr = ts ? new Date(ts.time).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) : '';
+    html += `<div class="track-step">
+      <div class="dot-col">
+        <div class="dot ${dotClass}">${done?'✓':''}</div>
+        ${!isLast ? `<div class="vline ${lineClass}"></div>` : ''}
+      </div>
+      <div class="step-content">
+        <div class="step-label" style="${!done&&!active?'color:#aaa':''}">${step.label}</div>
+        <div class="step-time">${timeStr || (active?'Now...':'')}</div>
+        ${active&&step.note?`<div class="step-note">${step.note}</div>`:''}
+      </div>
+    </div>`;
+  });
+  document.getElementById('tracking-steps').innerHTML = html;
+
+  if(order.status === 'delivered' || order.status === 'cancelled') {
+    document.getElementById('live-badge').innerHTML = order.status === 'delivered' ? '🎉 Delivered!' : '❌ Cancelled';
+    if(trackingInterval) clearInterval(trackingInterval);
+  }
+}
+
+async function cancelOrder(orderId) {
+  if(!confirm('Are you sure you want to cancel this order?')) return;
+  try {
+    await api('POST', '/orders/' + orderId + '/cancel');
+    showToast('Order cancelled successfully.');
+    refreshTracking();
+  } catch(e) { alert(e.message); }
+}
+
+// ── Socket setup ──────────────────────────────────────────────────────────────
+function initSocket(userId) {
+  if(socket) socket.disconnect();
+  socket = io(window.location.origin);
+  socket.emit('join', { role:'customer', userId });
+  socket.on('order:statusUpdate', (order) => {
+    if(order.id === currentOrderId) renderTrackingUI(order);
+    const statusLabels = {accepted:'Rider assigned!',picked_up:'Medicines picked up!',on_the_way:'Rider is on the way!',delivered:'Order delivered!'};
+    const msg = statusLabels[order.status];
+    if(msg) showToast(msg);
+  });
+  socket.on('order:accepted', (order) => {
+    if(order.id === currentOrderId) renderTrackingUI(order);
+    showToast('🛵 Rider ' + order.deliveryBoyName + ' accepted your order!');
+  });
+}
+
+function showToast(msg) {
+  let t = document.getElementById('pf-toast');
+  if(!t) { t=document.createElement('div'); t.id='pf-toast'; t.style.cssText='position:fixed;bottom:24px;right:24px;background:#0F6E56;color:#fff;border-radius:14px;padding:14px 20px;font-size:14px;font-weight:600;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.2);animation:slideUp .3s ease'; document.body.appendChild(t); const style=document.createElement('style'); style.textContent='@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}'; document.head.appendChild(style); }
+  t.textContent = msg; t.style.display='block';
+  setTimeout(()=>{t.style.display='none';},4000);
+}
+
+// ── Auth ──────────────────────────────────────────────────────────────────────
+function openSidebar(view) {
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('sidebar-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+  if(view==='profile'&&currentUser) showProfile(); else showAuth();
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+function showAuth() { document.getElementById('auth-section').style.display='flex'; document.getElementById('auth-section').style.flexDirection='column'; document.getElementById('profile-section').style.display='none'; }
+function showProfile() {
+  document.getElementById('auth-section').style.display='none';
+  document.getElementById('profile-section').style.display='flex';
+  if(currentUser) { document.getElementById('profile-name').textContent=currentUser.name; document.getElementById('profile-email').textContent=currentUser.email; document.getElementById('profile-avatar').textContent=currentUser.name.charAt(0).toUpperCase(); }
+}
+function switchTab(tab) {
+  document.getElementById('tab-login').classList.toggle('active',tab==='login');
+  document.getElementById('tab-signup').classList.toggle('active',tab==='signup');
+  document.getElementById('panel-login').classList.toggle('active',tab==='login');
+  document.getElementById('panel-signup').classList.toggle('active',tab==='signup');
+  document.getElementById('sidebar-title').textContent=tab==='login'?'Welcome Back!':'Create Account';
+  ['login-error','login-success','signup-error','signup-success'].forEach(id=>document.getElementById(id).style.display='none');
+}
+
+async function doLogin() {
+  const email=document.getElementById('login-email').value.trim();
+  const pass=document.getElementById('login-password').value;
+  const errEl=document.getElementById('login-error');
+  errEl.style.display='none';
+  if(!email||!pass){errEl.textContent='Please enter email and password.';errEl.style.display='block';return;}
+  try {
+    const data = await api('POST','/auth/login',{email,password:pass});
+    if(data.user.role==='delivery_boy') throw new Error('Please use the Rider Portal at delivery.html');
+    token=data.token; currentUser=data.user;
+    localStorage.setItem('pf_customer_token',token);
+    document.getElementById('login-success').style.display='block';
+    initSocket(currentUser.id);
+    setTimeout(()=>{updateNavUser();closeSidebar();},800);
+  } catch(e) { errEl.textContent=e.message;errEl.style.display='block'; }
+}
+
+async function doSignup() {
+  const name=document.getElementById('signup-name').value.trim();
+  const phone=document.getElementById('signup-phone').value.trim();
+  const email=document.getElementById('signup-email').value.trim();
+  const pass=document.getElementById('signup-password').value;
+  const address=document.getElementById('signup-address').value.trim();
+  const errEl=document.getElementById('signup-error');
+  errEl.style.display='none';
+  if(!name||!email||!pass){errEl.textContent='Please fill in all required fields.';errEl.style.display='block';return;}
+  try {
+    const data = await api('POST','/auth/register',{name,phone,email,password:pass,address,role:'customer'});
+    token=data.token; currentUser=data.user;
+    localStorage.setItem('pf_customer_token',token);
+    document.getElementById('signup-success').style.display='block';
+    initSocket(currentUser.id);
+    setTimeout(()=>{updateNavUser();closeSidebar();},800);
+  } catch(e) { errEl.textContent=e.message;errEl.style.display='block'; }
+}
+
+function doLogout() {
+  token=null; currentUser=null;
+  localStorage.removeItem('pf_customer_token');
+  if(socket) socket.disconnect();
+  updateNavUser(); closeSidebar();
+}
+
+function updateNavUser() {
+  const lb=document.getElementById('nav-login-btn');
+  const ub=document.getElementById('nav-user-btn');
+  if(currentUser){lb.style.display='none';ub.style.display='flex';document.getElementById('nav-username').textContent=currentUser.name.split(' ')[0];document.getElementById('nav-avatar').textContent=currentUser.name.charAt(0).toUpperCase();}
+  else{lb.style.display='inline-block';ub.style.display='none';}
+}
+
+function checkStrength(val) {
+  const fill=document.getElementById('strength-fill');const label=document.getElementById('strength-label');
+  let s=0;if(val.length>=6)s++;if(val.length>=10)s++;if(/[A-Z]/.test(val))s++;if(/[0-9]/.test(val))s++;if(/[^A-Za-z0-9]/.test(val))s++;
+  const l=[{w:'0%',bg:'#eee',t:'Enter a password'},{w:'25%',bg:'#E24B4A',t:'Weak'},{w:'50%',bg:'#EF9F27',t:'Fair'},{w:'75%',bg:'#639922',t:'Good'},{w:'100%',bg:'#0F6E56',t:'Strong!'}][Math.min(s,4)];
+  fill.style.width=l.w;fill.style.background=l.bg;label.textContent=l.t;
+}
+
+// ── Auto Login ────────────────────────────────────────────────────────────────
+async function tryAutoLogin() {
+  if(!token) return;
+  try {
+    const user = await api('GET','/auth/me');
+    if(user.role==='delivery_boy'){localStorage.removeItem('pf_customer_token');return;}
+    currentUser=user; updateNavUser(); initSocket(user.id);
+  } catch { localStorage.removeItem('pf_customer_token'); token=null; }
+}
+
+function triggerRxUpload() {
+  if(!currentUser) { openSidebar('login'); return; }
+  document.getElementById('rx-file-input').click();
+}
+
+async function handleRxFileSelection(input) {
+  const file = input.files[0];
+  if(!file) return;
+  
+  if(file.size > 5 * 1024 * 1024) {
+    alert('File is too large! Max 5MB allowed.');
+    input.value = '';
+    return;
+  }
+
+  const box = document.getElementById('upload-box');
+  const icon = document.getElementById('upload-icon');
+  const title = document.getElementById('upload-title');
+  const sub = document.getElementById('upload-sub');
+
+  icon.textContent = '⏳';
+  title.textContent = 'Uploading...';
+  sub.textContent = 'Please wait while we process your file';
+  box.style.opacity = '0.7';
+  box.style.pointerEvents = 'none';
+
+  const formData = new FormData();
+  formData.append('prescription', file);
+
+  try {
+    const res = await fetch(API + '/upload-prescription', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token },
+      body: formData
+    });
+    const data = await res.json();
+    if(!res.ok) throw new Error(data.error || 'Upload failed');
+
+    uploadedRxFilename = data.filename;
+    document.getElementById('rx-filename-display').textContent = file.name;
+    document.getElementById('rx-filesize-display').textContent = 'Uploaded · ' + (file.size / 1024).toFixed(0) + ' KB';
+    
+    box.style.display = 'none';
+    document.getElementById('rx-uploaded').style.display = 'block';
+  } catch(e) {
+    alert('Upload error: ' + e.message);
+    resetRxUpload();
+  }
+}
+
+function resetRxUpload() {
+  uploadedRxFilename = null;
+  document.getElementById('upload-box').style.display = 'block';
+  document.getElementById('upload-box').style.opacity = '1';
+  document.getElementById('upload-box').style.pointerEvents = 'all';
+  document.getElementById('upload-icon').textContent = '📷';
+  document.getElementById('upload-title').textContent = 'Upload Your Prescription';
+  document.getElementById('upload-sub').textContent = 'Click to select a JPG, PNG, or PDF file\nMax size: 5 MB';
+  document.getElementById('rx-uploaded').style.display = 'none';
+  document.getElementById('rx-file-input').value = '';
+}
+
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSidebar();});
+renderHomeMeds();
+tryAutoLogin();
+</script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: pharmafast-backend
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PHARMAFAST_SECRET
+        generateValue: true
+      - key: PORT
+        value: 3000
